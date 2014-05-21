@@ -88,7 +88,10 @@ class KSecureEntryHelper
 	{
 		if(!is_array($contexts))
 			$contexts = array($contexts);
-			
+
+		if($entry->getParentEntryId())
+			$entry = entryPeer::retrieveByPK($entry->getParentEntryId());
+		
 		$this->entry = $entry;
 		$this->ksStr = $ksStr;
 		$this->referrer = $referrer;

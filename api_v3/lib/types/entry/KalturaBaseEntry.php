@@ -319,6 +319,14 @@ class KalturaBaseEntry extends KalturaObject implements IFilterable
 	public $rootEntryId;
 	
 	/**
+	 * ID of source root entry, used for defining entires association
+	 *
+	 * @var string
+	 * @filter eq,in
+	 */
+	public $parentEntryId;
+	
+	/**
 	 * clipping, skipping and cropping attributes that used to create this entry  
 	 * 
 	 * @var KalturaOperationAttributesArray
@@ -381,6 +389,7 @@ class KalturaBaseEntry extends KalturaObject implements IFilterable
 	 	"conversionProfileId" => "conversionQuality",
 	 	"redirectEntryId",
 	 	"rootEntryId",
+	 	"parentEntryId",
 	 	"entitledUsersEdit" => "entitledPusersEdit",
 	 	"entitledUsersPublish" => "entitledPusersPublish"
 	 );

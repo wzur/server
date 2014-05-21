@@ -234,8 +234,76 @@ abstract class CuePointBulkUploadXmlHandler implements IKalturaBulkUploadXmlHand
 		$this->operations[] = KalturaBulkUploadAction::ADD;
 		if($cuePoint->systemName)
 			$this->ingested[$cuePoint->systemName] = $ingestedCuePoint;
-			
+
+		if(isset($scene->slides))
+			$this->addFileAssetAssociation($scene->slides->slide, KBatchBase::$kClient->getMultiRequestResult()->id);
+		
 		return true;
+	}
+	
+	/**
+	 * @param SimpleXMLElement $scene
+	 * @param strung		   $ingestedCuePointId 
+	 */
+	protected function addFileAssetAssociation(SimpleXMLElement $slidesElement, $ingestedCuePointId)
+	{
+		KalturaLog::debug("slides Element [" . print_r($slidesElement->asXml(), true). "]");
+		
+		if(empty($slidesElement)) // if the content is empty skip
+		{
+			continue;
+		}
+		
+		$fileAsset = $this->getFileAsset($slidesElement, $ingestedCuePointId);
+		$fileAssetResource = $this->getResource($slidesElement);
+		//TBD Need to chnage support to slideThumbAsset
+		KBatchBase::$kClient->fileAsset->add($fileAsset);
+		KBatchBase::$kClient->fileAsset->setContent(KBatchBase::$kClient->getMultiRequestResult()->id, $fileAssetResource);
+	}
+	
+	protected function getFileAsset(SimpleXMLElement $slideElement, $ingestedCuePointId)
+	{
+		$fileAsset = new KalturaFileAsset();
+		$fileAsset->fileAssetObjectType = KalturaFileAssetObjectType::CUE_POINT_FILE_ASSET;
+		$fileAsset->objectId = $ingestedCuePointId;
+		
+		if(isset($slideElement->name))
+			$fileAsset->name = $slideElement->name;
+		if(isset($slidesElement->systemName))
+			$fileAsset->systemName = $slideElement->systemName;
+		if(isset($slideElement->fileExt))
+			$fileAsset->fileExt = $slideElement->fileExt;
+			
+		return $fileAsset;
+	}
+	
+	protected function getResource(SimpleXMLElement $contentElement)
+	{
+		//To Continue
+		$resource = $this->getResourceInstance($contentElement);
+		if(isset($contentElement->urlContentResource))
+		{
+			KalturaLog::debug("Resource is : urlContentResource");
+			$resource = new KalturaUrlResource();
+			$urlContentResource = $elementToSearchIn->urlContentResource;
+			$resource->url = kXml::getXmlAttributeAsString($urlContentResource, "url");
+		}
+		
+	}
+	
+	protected function getResourceInstance(SimpleXMLElement $elementToSearchIn)
+	{
+		$resource = null;
+			
+		if(isset($elementToSearchIn->urlContentResource))
+		{
+			KalturaLog::debug("Resource is : urlContentResource");
+			$resource = new KalturaUrlResource();
+			$urlContentResource = $elementToSearchIn->urlContentResource;
+			$resource->url = kXml::getXmlAttributeAsString($urlContentResource, "url");
+		}
+		
+		return $resource;
 	}
 
 	/**

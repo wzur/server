@@ -175,6 +175,14 @@ class kContentDistributionFlowManager extends kContentDistributionManager implem
 		
 		if($dbBatchJob->getJobType() == BatchJobType::IMPORT)
 			self::onImportJobUpdated($dbBatchJob, $dbBatchJob->getData());
+			
+		if(in_array($dbBatchJob->getJobType(), array(ContentDistributionPlugin::getBatchJobTypeCoreValue(ContentDistributionBatchJobType::DISTRIBUTION_SUBMIT), 
+					ContentDistributionPlugin::getBatchJobTypeCoreValue(ContentDistributionBatchJobType::DISTRIBUTION_UPDATE), 
+					ContentDistributionPlugin::getBatchJobTypeCoreValue(ContentDistributionBatchJobType::DISTRIBUTION_DELETE))) 
+					&& $dbBatchJob->getStatus() == BatchJob::BATCHJOB_STATUS_FINISHED)
+		{
+			self::handleRelatedEntriesDistribution($dbBatchJob, $dbBatchJob->getData(), $dbBatchJob->getJobType());
+		}
 		
 		return true;
 	}
@@ -1320,7 +1328,7 @@ class kContentDistributionFlowManager extends kContentDistributionManager implem
 	/**
 	 * @param EntryDistribution $entryDistribution
 	 */
-	public static function onEntryDistributionUpdateRequired(EntryDistribution $entryDistribution)
+	public static function onEntryDistributionUpdateRequired(EntryDistribution $entryDistribution, $update = false)
 	{
 		$ignoreStatuses = array(
 			EntryDistributionStatus::PENDING,
@@ -1369,7 +1377,7 @@ class kContentDistributionFlowManager extends kContentDistributionManager implem
 			return true;
 		}
 				
-		if($distributionProfile->getUpdateEnabled() != DistributionProfileActionStatus::AUTOMATIC)
+		if($distributionProfile->getUpdateEnabled() != DistributionProfileActionStatus::AUTOMATIC && $update == false)
 		{
 			KalturaLog::log("Entry distribution [" . $entryDistribution->getId() . "] should not be updated automatically");
 			$entryDistribution->setDirtyStatus(EntryDistributionDirtyStatus::UPDATE_REQUIRED);
@@ -1780,6 +1788,58 @@ class kContentDistributionFlowManager extends kContentDistributionManager implem
 		$entryDistribution->save();
 		
 		return $listChanged;
+	}
+	
+	protected static function handleRelatedEntriesDistribution(BatchJob $dbBatchJob, kDistributionJobData $data, $jobType)
+	{
+		$baseCriteria = KalturaCriteria::create(entryPeer::OM_CLASS);
+		$filter = new entryFilter();
+		$filter->setParentEntryIdEqual($dbBatchJob->getEntryId());
+		$filter->setTypeIn(array(KalturaMediaType::AUDIO, KalturaMediaType::VIDEO));
+		$filter->attachToCriteria($baseCriteria);
+		$entries = entryPeer::doSelect($baseCriteria);
+		
+		if(!count($entries))
+			return;
+		
+		$entryDistribution = EntryDistributionPeer::retrieveByPK($data->getEntryDistributionId());
+		if(!$entryDistribution)
+		{
+			KalturaLog::err("Entry distribution [" . $data->getEntryDistributionId() . "] not found");
+			return $dbBatchJob;
+		}
+	
+		$distributionProfileId = $entryDistribution->getDistributionProfileId();
+		$distributionProfile = DistributionProfilePeer::retrieveByPK($distributionProfileId);
+		if(!$distributionProfile)
+		{
+			KalturaLog::err("Entry distribution [" . $entryDistribution->getId() . "] profile [$distributionProfileId] not found");
+			return $dbBatchJob;
+		}
+		
+		foreach ($entries as $entry)
+		{
+			switch ($jobType)
+			{
+				case ContentDistributionPlugin::getBatchJobTypeCoreValue(ContentDistributionBatchJobType::DISTRIBUTION_SUBMIT):
+					self::addEntryDistribution($entry, $distributionProfile, true);
+					break;
+				case ContentDistributionPlugin::getBatchJobTypeCoreValue(ContentDistributionBatchJobType::DISTRIBUTION_UPDATE):
+					$updateEntryDistribution = EntryDistributionPeer::retrieveByEntryAndProfileId($entry->getId(), $distributionProfileId);
+					if(!$updateEntryDistribution)
+						KalturaLog::err("Entry distribution not found for entry  [" . $entry->getId() . "] for profile [$distributionProfileId]");
+						break;
+					self::onEntryDistributionUpdateRequired($updateEntryDistribution, true);
+					break;
+				case ContentDistributionPlugin::getBatchJobTypeCoreValue(ContentDistributionBatchJobType::DISTRIBUTION_DELETE):
+					$deleteEntryDistribution = EntryDistributionPeer::retrieveByEntryAndProfileId($entry->getId(), $distributionProfileId);
+					if(!$deleteEntryDistribution)
+						KalturaLog::err("Entry distribution not found for entry  [" . $entry->getId() . "] for profile [$distributionProfileId]");
+						break;
+					 self::submitDeleteEntryDistribution($deleteEntryDistribution, $distributionProfile);
+					 break;
+			}
+		}
 	}
 	
 }

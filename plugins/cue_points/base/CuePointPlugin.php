@@ -68,12 +68,15 @@ class CuePointPlugin extends KalturaPlugin implements IKalturaServices, IKaltura
 	public static function getEnums($baseEnumName = null)
 	{
 		if(is_null($baseEnumName))
-			return array('CuePointSchemaType', 'CuePointObjectFeatureType');
+			return array('CuePointSchemaType', 'CuePointObjectFeatureType', 'CuePointFileAssetObjectType');
 		
 		if($baseEnumName == 'SchemaType')
 			return array('CuePointSchemaType');
 			
 		if($baseEnumName == 'ObjectFeatureType')
+			return array('CuePointObjectFeatureType');
+			
+		if($baseEnumName == 'FileAssetObjectType')
 			return array('CuePointObjectFeatureType');
 			
 		return array();
@@ -130,6 +133,11 @@ class CuePointPlugin extends KalturaPlugin implements IKalturaServices, IKaltura
 					<xs:documentation>Cue point searchable keywords</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element ref="slides" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>Cue point associated file asset</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 		
 		<xs:attribute name="sceneId" use="required">
@@ -177,6 +185,14 @@ class CuePointPlugin extends KalturaPlugin implements IKalturaServices, IKaltura
 				Base cue point element<br/>
 				Is abstract and cannot be used<br/>
 				Use the extended elements only
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	
+	<xs:element name="slides" type="T_slides">
+		<xs:annotation>
+			<xs:documentation>
+				Cue point associated file asset<br/>
 			</xs:documentation>
 		</xs:annotation>
 	</xs:element>
@@ -254,6 +270,15 @@ class CuePointPlugin extends KalturaPlugin implements IKalturaServices, IKaltura
 	public static function getApiValue($valueName)
 	{
 		return self::getPluginName() . IKalturaEnumerator::PLUGIN_VALUE_DELIMITER . $valueName;
+	}
+	
+	/**
+	 * @return int id of dynamic enum in the DB.
+	 */
+	public static function getCoreValue($type, $valueName)
+	{
+		$value = self::getPluginName() . IKalturaEnumerator::PLUGIN_VALUE_DELIMITER . $valueName;
+		return kPluginableEnumsManager::apiToCore($type, $value);
 	}
 	
 	/* (non-PHPdoc)

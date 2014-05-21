@@ -891,6 +891,9 @@ class KalturaEntryService extends KalturaBaseService
 		$dbEntry->setPartnerId($this->getPartnerId());
 		$dbEntry->setSubpId($this->getPartnerId() * 100);
 		$dbEntry->setDefaultModerationStatus();
+		
+		if($entry->parentEntryId)
+			$dbEntry->setDisplayInSearch(mySearchUtils::DISPLAY_IN_SEARCH_SYSTEM);
 				
 		return $dbEntry;
 	}

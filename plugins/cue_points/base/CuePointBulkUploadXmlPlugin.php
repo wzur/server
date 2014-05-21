@@ -79,6 +79,7 @@ class CuePointBulkUploadXmlPlugin extends KalturaPlugin implements IKalturaPendi
 					<xs:documentation>Searchable keywords associated with a cue point</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element maxOccurs="1" minOccurs="0" ref="slides"> </xs:element>
 		</xs:sequence>
 		
 		<xs:attribute name="sceneId" use="optional">
@@ -104,6 +105,31 @@ class CuePointBulkUploadXmlPlugin extends KalturaPlugin implements IKalturaPendi
 		
 	</xs:complexType>
 	
+	<xs:complexType name="T_slides">
+                <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" ref="slide"> </xs:element>
+                </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="T_slide">
+		<xs:sequence>
+			<xs:choice maxOccurs="1" minOccurs="1">
+            	<xs:element maxOccurs="1" minOccurs="1" ref="serverFileContentResource"></xs:element>
+                <xs:element maxOccurs="1" minOccurs="1" ref="urlContentResource"></xs:element>
+                <xs:element maxOccurs="1" minOccurs="1" ref="sshUrlContentResource"></xs:element>
+                <xs:element maxOccurs="1" minOccurs="1" ref="remoteStorageContentResource"></xs:element>
+                <xs:element maxOccurs="1" minOccurs="1" ref="remoteStorageContentResources"></xs:element>
+                <xs:element maxOccurs="1" minOccurs="1" ref="entryContentResource"></xs:element>
+                <xs:element maxOccurs="1" minOccurs="1" ref="assetContentResource"></xs:element>
+                <xs:element maxOccurs="1" minOccurs="1" ref="contentResource-extension"></xs:element>
+           </xs:choice>
+		</xs:sequence>
+		<xs:attribute name="objectId" type="xs:string" use="optional"/>
+		<xs:attribute name="name" type="xs:string" use="optional"/>
+		<xs:attribute name="systemName" type="xs:string" use="optional"/>
+		<xs:attribute name="fileExt" type="xs:string" use="optional"/>
+	</xs:complexType>
+	
 	<xs:element name="scenes" type="T_scenes" substitutionGroup="item-extension">
 		<xs:annotation>
 			<xs:documentation>A cue points wrapper element</xs:documentation>
@@ -125,6 +151,22 @@ class CuePointBulkUploadXmlPlugin extends KalturaPlugin implements IKalturaPendi
 		<xs:annotation>
 			<xs:documentation>
 				A base cue point element. This is an abstract element and cannot be used. Use only extended elements.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	
+	<xs:element name="slides" type="T_slides">
+		<xs:annotation>
+			<xs:documentation>
+				All file asset element.
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	
+	<xs:element name="slide" type="T_slide">
+		<xs:annotation>
+			<xs:documentation>
+				A file asset element. Proived the ability to define file asset association to the created cue point
 			</xs:documentation>
 		</xs:annotation>
 	</xs:element>
