@@ -229,6 +229,9 @@ abstract class CuePointBulkUploadXmlHandler implements IKalturaBulkUploadXmlHand
 		if(!$cuePoint)
 			return false;
 			
+		if($cuePoint instanceof KalturaThumbCuePoint)
+			$cuePoint->timedThumbAssetId = KBatchBase::$kClient->getMultiRequestResult()->id;
+			
 		$cuePoint->entryId = $this->entryId;
 		$ingestedCuePoint = $this->cuePointPlugin->cuePoint->add($cuePoint);
 		$this->operations[] = KalturaBulkUploadAction::ADD;
