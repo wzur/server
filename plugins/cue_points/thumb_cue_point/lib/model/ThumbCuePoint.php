@@ -14,6 +14,22 @@ class ThumbCuePoint extends CuePoint implements IMetadataObject
 		parent::__construct();
 		$this->applyDefaultValues();
 	}
+	
+	/* (non-PHPdoc)
+	 * @see CuePoint::preInsert()
+	 */
+	public function preInsert(PropelPDO $con = null)
+	{
+		$timedThumbAsset = new timedThumbasset();
+		$timedThumbAsset->setOffset($this->getStartTime());
+		$timedThumbAsset->setStatus(thumbAsset::ASSET_STATUS_QUEUED);
+		$timedThumbAsset->save();
+		
+		$this->setTimedThumbAssetId($timedThumbAsset->getId());
+		$this->setCustomDataObj();
+		
+		return parent::preInsert($con);
+	}
 
 	/**
 	 * Applies default values to this object.
@@ -22,11 +38,11 @@ class ThumbCuePoint extends CuePoint implements IMetadataObject
 	 */
 	public function applyDefaultValues()
 	{
-		$this->setType(CodeCuePointPlugin::getCuePointTypeCoreValue(thumbCuePointType::THUMB));
+		$this->setType(ThumbCuePointPlugin::getCuePointTypeCoreValue(thumbCuePointType::THUMB));
 	}
 	
-	public function setThumbAssetID($v)		{return $this->putInCustomData(self::CUSTOM_DATA_FIELD_THUMB_ASSET_ID, (string)$v);}
-	public function getThumbAssetID()		{return $this->putInCustomData(self::CUSTOM_DATA_FIELD_THUMB_ASSET_ID); }
+	public function setTimedThumbAssetId($v)		{return $this->putInCustomData(self::CUSTOM_DATA_FIELD_THUMB_ASSET_ID, (string)$v);}
+	public function getTimedThumbAssetId()			{return $this->getFromCustomData(self::CUSTOM_DATA_FIELD_THUMB_ASSET_ID);}
 	
 	/* (non-PHPdoc)
 	 * @see IMetadataObject::getMetadataObjectType()

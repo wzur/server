@@ -9,7 +9,7 @@ abstract class CuePointBulkUploadXmlHandler implements IKalturaBulkUploadXmlHand
 	/**
 	 * @var BulkUploadEngineXml
 	 */
-	private $xmlBulkUploadEngine = null;
+	protected $xmlBulkUploadEngine = null;
 	
 	/**
 	 * @var KalturaCuePointClientPlugin
@@ -228,9 +228,6 @@ abstract class CuePointBulkUploadXmlHandler implements IKalturaBulkUploadXmlHand
 		$cuePoint = $this->parseCuePoint($scene);
 		if(!$cuePoint)
 			return false;
-			
-		if($cuePoint instanceof KalturaThumbCuePoint)
-			$cuePoint->timedThumbAssetId = KBatchBase::$kClient->getMultiRequestResult()->id;
 			
 		$cuePoint->entryId = $this->entryId;
 		$ingestedCuePoint = $this->cuePointPlugin->cuePoint->add($cuePoint);

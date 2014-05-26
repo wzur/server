@@ -94,7 +94,8 @@ class ThumbCuePointBulkUploadXmlPlugin extends KalturaPlugin implements IKaltura
 				<xs:element maxOccurs="1" minOccurs="1" ref="contentResource-extension"></xs:element>
 			</xs:choice>
 		</xs:sequence>
-		<xs:attribute name="slideThumbAssetId" type="xs:string" use="optional"/>		
+		<xs:attribute name="slideThumbAssetId" type="xs:string" use="optional"/>
+		<xs:attribute name="offset" type="xs:string" use="optional"/>	
 	</xs:complexType>
 	
 	<xs:element name="scene-thumb-cue-point" type="T_scene_thumbCuePoint" substitutionGroup="scene">
@@ -113,6 +114,14 @@ class ThumbCuePointBulkUploadXmlPlugin extends KalturaPlugin implements IKaltura
 					</scene-thumb-cue-point>
 				</example>
 			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	
+	<xs:element name="slide" type="T_slide">
+		<xs:annotation>
+			<xs:documentation>
+				The slide image to attahce to tht thumb cue point ellement
+			</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 		';

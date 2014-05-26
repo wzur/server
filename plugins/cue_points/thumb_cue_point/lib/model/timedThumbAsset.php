@@ -15,7 +15,7 @@ class timedThumbasset extends thumbAsset
 	public function applyDefaultValues()
 	{
 		parent::applyDefaultValues();
-		$this->setType(thumbCuePointPlugin::getAssetTypeCoreValue(timedThumbAssetType::TIMED_THUMB_ASSET));
+		$this->setType(ThumbCuePointPlugin::getAssetTypeCoreValue(timedThumbAssetType::TIMED_THUMB_ASSET));
 	}
 
 	public function getOffset()			{return $this->getFromCustomData(self::CUSTOM_DATA_FIELD_OFFSET);}

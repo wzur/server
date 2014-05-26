@@ -14,6 +14,7 @@ class KalturaThumbAssetArray extends KalturaTypedArray
 		foreach ($arr as $obj)
 		{
     		$nObj = new KalturaThumbAsset();
+    		
 			$nObj->fromObject($obj);
 			$newArr[] = $nObj;
 		}

@@ -55,7 +55,7 @@ class KalturaThumbAsset extends KalturaAsset
 	public function toInsertableObject ( $object_to_fill = null , $props_to_skip = array() )
 	{
 		if(!$object_to_fill)
-			$object_to_fill = new KalturaThumbAsset();
+			$object_to_fill = new thumbAsset();
 		
 		if (!is_null($this->thumbParamsId))
 		{

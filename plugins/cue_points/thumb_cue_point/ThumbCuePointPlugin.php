@@ -5,6 +5,10 @@
 class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint
 {
 	const PLUGIN_NAME = 'thumbCuePoint';
+	const CUE_POINT_VERSION_MAJOR = 1;
+	const CUE_POINT_VERSION_MINOR = 0;
+	const CUE_POINT_VERSION_BUILD = 0;
+	const CUE_POINT_NAME = 'cuePoint';
 	
 	public static function getPluginName()
 	{
@@ -123,7 +127,8 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint
 				<xs:element maxOccurs="1" minOccurs="1" ref="contentResource-extension"></xs:element>
 			</xs:choice>
 		</xs:sequence>
-		<xs:attribute name="slideThumbAssetId" type="xs:string" use="optional"/>		
+		<xs:attribute name="slideThumbAssetId" type="xs:string" use="optional"/>
+		<xs:attribute name="offset" type="xs:string" use="optional"/>			
 	</xs:complexType>
 	
 	<xs:element name="scene-thumb-cue-point" type="T_scene_thumbCuePoint" substitutionGroup="scene">
@@ -142,6 +147,14 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint
 					</scene-thumb-cue-point>
 				</example>
 			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	
+	<xs:element name="slide" type="T_slide">
+		<xs:annotation>
+			<xs:documentation>
+				The slide image to attahce to tht thumb cue point ellement
+			</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 		';
@@ -206,7 +219,7 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint
 		if($cuePoint->getEndTime())
 			$scene->addChild('sceneEndTime', kXml::integerToTime($cuePoint->getEndTime()));
 	
-		$scene->addChild('thumbAssetId', $cuePoint->getThumbAssetID());
+		$scene->addChild('thumbAssetId', $cuePoint->getTimedThumbAssetId());
 		
 		return $scene;
 	}
@@ -225,7 +238,7 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint
 		if($cuePoint->getEndTime())
 			$scene->addChild('sceneEndTime', kXml::integerToTime($cuePoint->getEndTime()));
 	
-		$scene->addChild('thumbAssetId', $cuePoint->getThumbAssetID());
+		$scene->addChild('thumbAssetId', $cuePoint->getTimedThumbAssetId());
 			
 		return $scene;
 	}

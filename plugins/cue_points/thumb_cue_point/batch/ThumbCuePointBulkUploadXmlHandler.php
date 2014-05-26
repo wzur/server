@@ -12,6 +12,11 @@ class ThumbCuePointBulkUploadXmlHandler extends CuePointBulkUploadXmlHandler
 	protected static $instance;
 	
 	/**
+	 * @var array
+	 */
+	protected $thumbResources;
+	
+	/**
 	 * @return ThumbCuePointBulkUploadXmlHandler
 	 */
 	public static function get()
@@ -51,16 +56,14 @@ class ThumbCuePointBulkUploadXmlHandler extends CuePointBulkUploadXmlHandler
 	
 	protected function addCuePoint(SimpleXMLElement $scene)
 	{
-		if(!isset($scene->slide))
-			return parent::addCuePoint($scene);
+		$thumbCuePoint = parent::addCuePoint($scene);
+		/*@var $thumbCuePoint KalturaThumbCuePoint */
 		
-		$timedThumbAsset = $this->getTimedThumbAsset($scene->slide);
 		$timedThumbResource = $this->xmlBulkUploadEngine->getResource($scene->slide, null);
 		
-		$thumb = KBatchBase::$kClient->thumbAsset->add($this->entryId, $timedThumbAsset);
-		KBatchBase::$kClient->thumbAsset->setContent(KBatchBase::$kClient->getMultiRequestResult()->id, $timedThumbResource);
+		$this->thumbResources[$thumbCuePoint->startTime] = $timedThumbResource; 
 		
-		return parent::addCuePoint($scene);
+		return $thumbCuePoint;
 	}
 	
 	protected function updateCuePoint(SimpleXMLElement $scene)
@@ -75,11 +78,37 @@ class ThumbCuePointBulkUploadXmlHandler extends CuePointBulkUploadXmlHandler
 		return parent::updateCuePoint($scene);
 	}
 	
-	protected function getTimedThumbAsset(SimpleXMLElement $slide)
+	protected function handleResults(array $results, array $items)
 	{
-		$timedThumbAsset = new KalturaTimedThumbAsset();
+		/*
+		KBatchBase::$kClient->startMultiRequest();
 		
-		$timedThumbAsset->offset = kXml::integerToTime($slide->offset);
+		foreach($results as $index => $cuePoint)
+		{	
+			if(isset($cuePoint->startTime) && isset($this->thumbResources[$cuePoint->startTime]) && $cuePoint instanceof KalturaThumbCuePoint)
+				 KBatchBase::$kClient->thumbAsset->setContent($cuePoint->timedThumbAssetId, $this->thumbResources[$cuePoint->startTime]);
+		}
+		
+		KBatchBase::$kClient->doMultiRequest();
+		
+		return parent::handleResults($results, $items);
+		*/
+		
+		KBatchBase::$kClient->startMultiRequest();
+		
+		foreach($results as $index => $cuePoint)
+		{	
+			if($cuePoint instanceof KalturaThumbCuePoint)
+			{
+				$timedThumbResource = $this->xmlBulkUploadEngine->getResource($items[$index]->slide, null);
+				KBatchBase::$kClient->thumbAsset->setContent($cuePoint->timedThumbAssetId, $timedThumbResource);
+			}
+				
+		}
+		
+		KBatchBase::$kClient->doMultiRequest();
+		
+		return parent::handleResults($results, $items);
 	}
-	
+
 }

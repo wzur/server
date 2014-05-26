@@ -81,7 +81,6 @@ class ThumbAssetService extends KalturaAssetService
     			throw new KalturaAPIException(KalturaErrors::THUMB_ASSET_ALREADY_EXISTS, $dbThumbAsset->getId(), $thumbAsset->thumbParamsId);
     	}
     	
-    	$dbThumbAsset = new thumbAsset();
     	$dbThumbAsset = $thumbAsset->toInsertableObject($dbThumbAsset);
     	/* @var $dbThumbAsset thumbAsset */
     	
@@ -90,7 +89,6 @@ class ThumbAssetService extends KalturaAssetService
 		$dbThumbAsset->setStatus(thumbAsset::ASSET_STATUS_QUEUED);
 		$dbThumbAsset->save();
 
-		$thumbAsset = new KalturaThumbAsset();
 		$thumbAsset->fromObject($dbThumbAsset);
 		return $thumbAsset;
     }
