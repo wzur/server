@@ -81,7 +81,7 @@ class ThumbAssetService extends KalturaAssetService
     			throw new KalturaAPIException(KalturaErrors::THUMB_ASSET_ALREADY_EXISTS, $dbThumbAsset->getId(), $thumbAsset->thumbParamsId);
     	}
     	
-    	$dbThumbAsset = $thumbAsset->toInsertableObject($dbThumbAsset);
+    	$dbThumbAsset = $thumbAsset->toInsertableObject();
     	/* @var $dbThumbAsset thumbAsset */
     	
 		$dbThumbAsset->setEntryId($entryId);
@@ -149,7 +149,7 @@ class ThumbAssetService extends KalturaAssetService
 			$this->setAsDefaultAction($dbThumbAsset->getId());
 		}
 		
-		$thumbAsset = new KalturaThumbAsset();
+		$thumbAsset = KalturaThumbAsset::getInstanceByType($dbThumbAsset->getType());
 		$thumbAsset->fromObject($dbThumbAsset);
 		return $thumbAsset;
     }
@@ -182,7 +182,7 @@ class ThumbAssetService extends KalturaAssetService
 		if($dbEntry->getCreateThumb() && $dbThumbAsset->hasTag(thumbParams::TAG_DEFAULT_THUMB))
 			$this->setAsDefaultAction($dbThumbAsset->getId());
 			
-		$thumbAsset = new KalturaThumbAsset();
+		$thumbAsset = KalturaThumbAsset::getInstanceByType($dbThumbAsset->getType());
 		$thumbAsset->fromObject($dbThumbAsset);
 		return $thumbAsset;
     }
@@ -742,7 +742,7 @@ class ThumbAssetService extends KalturaAssetService
 			}	
 		}
 		
-		$thumbAssets = new KalturaThumbAsset();
+		$thumbAssets = KalturaThumbAsset::getInstanceByType($thumbAssetsDb->getType());
 		$thumbAssets->fromObject($thumbAssetsDb);
 		return $thumbAssets;
 	}

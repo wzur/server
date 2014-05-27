@@ -2,7 +2,7 @@
 /**
  * @package plugins.thumbCuePoint
  */
-class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint
+class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint, IKalturaTypeExtender
 {
 	const PLUGIN_NAME = 'thumbCuePoint';
 	const CUE_POINT_VERSION_MAJOR = 1;
@@ -56,11 +56,26 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint
 	}
 	
 	/* (non-PHPdoc)
+	 * @see IKalturaTypeExtender::getExtendedTypes()
+	 */
+	public static function getExtendedTypes($baseClass, $enumValue)
+	{
+		if($baseClass == assetPeer::OM_CLASS && $enumValue == assetType::THUMBNAIL)
+		{
+			return array(
+				ThumbCuePointPlugin::getAssetTypeCoreValue(timedThumbAssetType::TIMED_THUMB_ASSET)
+			);
+		}
+		
+		return null;
+	}
+	
+	/* (non-PHPdoc)
 	 * @see IKalturaObjectLoader::loadObject()
 	 */
 	public static function loadObject($baseClass, $enumValue, array $constructorArgs = null)
 	{
-		if($baseClass == 'KalturaAsset' && $enumValue == self::getAssetTypeCoreValue(timedThumbAssetType::TIMED_THUMB_ASSET))
+		if($baseClass == 'KalturaThumbAsset' && $enumValue == self::getAssetTypeCoreValue(timedThumbAssetType::TIMED_THUMB_ASSET))
 			return new KalturaTimedThumbAsset();
 			
 		if($baseClass == 'KalturaCuePoint' && $enumValue == self::getCuePointTypeCoreValue(thumbCuePointType::THUMB))

@@ -25,7 +25,7 @@ class KalturaTimedThumbAsset extends KalturaThumbAsset
 	public function toInsertableObject ( $object_to_fill = null , $props_to_skip = array() )
 	{
 		if(!$object_to_fill)
-			$object_to_fill = new timedThumbasset();
+			$object_to_fill = new timedThumbAsset();
 		
 		return parent::toInsertableObject ($object_to_fill, $props_to_skip);
 	}

@@ -5,7 +5,7 @@
  * @package plugins.thumbCuePoint
  * @subpackage model
  */ 
-class timedThumbasset extends thumbAsset
+class timedThumbAsset extends thumbAsset
 {
 	const CUSTOM_DATA_FIELD_OFFSET = "offest";
 

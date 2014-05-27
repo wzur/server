@@ -20,9 +20,10 @@ class ThumbCuePoint extends CuePoint implements IMetadataObject
 	 */
 	public function preInsert(PropelPDO $con = null)
 	{
-		$timedThumbAsset = new timedThumbasset();
+		$timedThumbAsset = new timedThumbAsset();
 		$timedThumbAsset->setOffset($this->getStartTime());
 		$timedThumbAsset->setStatus(thumbAsset::ASSET_STATUS_QUEUED);
+		$timedThumbAsset->setEntryId($this->getEntryId());
 		$timedThumbAsset->save();
 		
 		$this->setTimedThumbAssetId($timedThumbAsset->getId());
