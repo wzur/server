@@ -30,13 +30,13 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint, IKa
 	public static function getEnums($baseEnumName = null)
 	{
 		if(is_null($baseEnumName))
-			return array('timedThumbAssetType', 'thumbCuePointType');
+			return array('timedThumbAssetType', 'ThumbCuePointType');
 	
 		if($baseEnumName == 'assetType')
 			return array('timedThumbAssetType');
 			
 		if($baseEnumName == 'CuePointType')
-			return array('thumbCuePointType');	
+			return array('ThumbCuePointType');	
 			
 		return array();
 	}
@@ -78,7 +78,7 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint, IKa
 		if($baseClass == 'KalturaThumbAsset' && $enumValue == self::getAssetTypeCoreValue(timedThumbAssetType::TIMED_THUMB_ASSET))
 			return new KalturaTimedThumbAsset();
 			
-		if($baseClass == 'KalturaCuePoint' && $enumValue == self::getCuePointTypeCoreValue(thumbCuePointType::THUMB))
+		if($baseClass == 'KalturaCuePoint' && $enumValue == self::getCuePointTypeCoreValue(ThumbCuePointType::THUMB))
 			return new KalturaThumbCuePoint();
 		
 		return null;
@@ -92,7 +92,7 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint, IKa
 		if($baseClass == 'asset' && $enumValue == self::getAssetTypeCoreValue(timedThumbAssetType::TIMED_THUMB_ASSET))
 			return 'timedThumbAsset';
 			
-		if($baseClass == 'CuePoint' && $enumValue == self::getCuePointTypeCoreValue(thumbCuePointType::THUMB))
+		if($baseClass == 'CuePoint' && $enumValue == self::getCuePointTypeCoreValue(ThumbCuePointType::THUMB))
 			return 'ThumbCuePoint';
 		
 		return null;
@@ -122,6 +122,8 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint, IKa
 		<xs:complexContent>
 			<xs:extension base="T_scene">
 				<xs:sequence>
+					<xs:element name="title" minOccurs="1" maxOccurs="1" type="xs:string"> </xs:element>
+					<xs:element name="description" minOccurs="1" maxOccurs="1" type="xs:string"> </xs:element>
 					<xs:element maxOccurs="1" minOccurs="1" ref="slide" />
 					<xs:element ref="scene-extension" minOccurs="0" maxOccurs="unbounded" />
 				</xs:sequence>
@@ -142,8 +144,7 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint, IKa
 				<xs:element maxOccurs="1" minOccurs="1" ref="contentResource-extension"></xs:element>
 			</xs:choice>
 		</xs:sequence>
-		<xs:attribute name="slideThumbAssetId" type="xs:string" use="optional"/>
-		<xs:attribute name="offset" type="xs:string" use="optional"/>			
+		<xs:attribute name="timedThumbAssetId" type="xs:string" use="optional"/>		
 	</xs:complexType>
 	
 	<xs:element name="scene-thumb-cue-point" type="T_scene_thumbCuePoint" substitutionGroup="scene">

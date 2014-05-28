@@ -7,17 +7,32 @@ class KalturaThumbCuePoint extends KalturaCuePoint
 {
 	/**
 	 * @var string
+	 * @insertonly
 	 */
-	public $timedThumbAssetId ;
+	public $timedThumbAssetId;
+	
+	/**
+	 * @var string
+	 * @filter like,mlikeor,mlikeand
+	 */
+	public $description;
+	
+	/**
+	 * @var string
+	 * @filter like,mlikeor,mlikeand
+	 */
+	public $title;
 
 	public function __construct()
 	{
-		$this->cuePointType = ThumbCuePointPlugin::getApiValue(thumbCuePointType::THUMB);
+		$this->cuePointType = ThumbCuePointPlugin::getApiValue(ThumbCuePointType::THUMB);
 	}
 	
 	private static $map_between_objects = array
 	(
 		"timedThumbAssetId",
+		"title" => "name",
+		"description" => "text",
 	);
 	
 	/* (non-PHPdoc)
@@ -44,22 +59,18 @@ class KalturaThumbCuePoint extends KalturaCuePoint
 	 */
 	public function validateForInsert($propertiesToSkip = array())
 	{
-		parent::validateForInsert($propertiesToSkip);
+		$this->validatePropertyNotNull("timedThumbAssetId");
 		
-		//TBD Maybe add new validation for asset id is not null
-		//$this->validatePropertyNotNull("timedThumbAssetId");
+		$this->validateTimedThumbAssetId();
+		
+		parent::validateForInsert($propertiesToSkip);
 	}
 	
-	/* (non-PHPdoc)
-	 * @see KalturaCuePoint::validateForUpdate()
-	 */
-	public function validateForUpdate($sourceObject, $propertiesToSkip = array())
+	public function validateTimedThumbAssetId()
 	{
-		//TBD Maybe add new validation that the thumb was not mannually deleted
-		//$this->validatePropertyNotNull("timedThumbAssetId");
-		//if(!is_null($this->endTime))
-		//	$this->validateEndTime($sourceObject->getId());
-			
-		return parent::validateForUpdate($sourceObject, $propertiesToSkip);
+		$timedThumb = assetPeer::retrieveByPK($this->timedThumbAssetId);
+		
+		if(!$timedThumb || $timedThumb->getType() != kPluginableEnumsManager::apiToCore('assetType', KalturaAssetType::TIMED_THUMB_ASSET))
+			throw new KalturaAPIException(KalturaErrors::THUMB_ASSET_ID_IS_NOT_TIMED_THUMB_TYPE, $this->timedThumbAssetId);
 	}
 }

@@ -74,6 +74,8 @@ class ThumbCuePointBulkUploadXmlPlugin extends KalturaPlugin implements IKaltura
 		<xs:complexContent>
 			<xs:extension base="T_scene">
 				<xs:sequence>
+					<xs:element name="title" minOccurs="1" maxOccurs="1" type="xs:string"> </xs:element>
+					<xs:element name="description" minOccurs="1" maxOccurs="1" type="xs:string"> </xs:element>
 					<xs:element maxOccurs="1" minOccurs="1" ref="slide" />
 					<xs:element ref="scene-extension" minOccurs="0" maxOccurs="unbounded" />
 				</xs:sequence>
@@ -94,8 +96,7 @@ class ThumbCuePointBulkUploadXmlPlugin extends KalturaPlugin implements IKaltura
 				<xs:element maxOccurs="1" minOccurs="1" ref="contentResource-extension"></xs:element>
 			</xs:choice>
 		</xs:sequence>
-		<xs:attribute name="slideThumbAssetId" type="xs:string" use="optional"/>
-		<xs:attribute name="offset" type="xs:string" use="optional"/>	
+		<xs:attribute name="timedThumbAssetId" type="xs:string" use="optional"/>
 	</xs:complexType>
 	
 	<xs:element name="scene-thumb-cue-point" type="T_scene_thumbCuePoint" substitutionGroup="scene">

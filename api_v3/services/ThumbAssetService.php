@@ -765,8 +765,11 @@ class ThumbAssetService extends KalturaAssetService
 		$c = new Criteria();
 		$c->add(assetPeer::ENTRY_ID, $entryId);
 		
-		$thumbTypes = KalturaPluginManager::getExtendedTypes(assetPeer::OM_CLASS, assetType::THUMBNAIL);
-		$c->add(assetPeer::TYPE, $thumbTypes, Criteria::IN);
+		//KMC currently does not support showing thumb asset extending types
+		//$thumbTypes = KalturaPluginManager::getExtendedTypes(assetPeer::OM_CLASS, assetType::THUMBNAIL);
+		//$c->add(assetPeer::TYPE, $thumbTypes, Criteria::IN);
+		
+		$c->add(assetPeer::TYPE, assetType::THUMBNAIL, Criteria::EQUAL);
 		
 		$thumbAssetsDb = assetPeer::doSelect($c);
 		$thumbAssets = KalturaThumbAssetArray::fromDbArray($thumbAssetsDb);
@@ -796,8 +799,14 @@ class ThumbAssetService extends KalturaAssetService
 		$c = new Criteria();
 		$thumbAssetFilter->attachToCriteria($c);
 		
-		$thumbTypes = KalturaPluginManager::getExtendedTypes(assetPeer::OM_CLASS, assetType::THUMBNAIL);
-		$c->add(assetPeer::TYPE, $thumbTypes, Criteria::IN);
+		if($filter instanceof KalturaThumbAssetFilter && $filter->typeEqual)
+			$c->add(assetPeer::TYPE, kPluginableEnumsManager::apiToCore('assetType', $filter->typeEqual), Criteria::EQUAL);
+		else
+		{
+			$thumbTypes = KalturaPluginManager::getExtendedTypes(assetPeer::OM_CLASS, assetType::THUMBNAIL);
+			$c->add(assetPeer::TYPE, $thumbTypes, Criteria::IN);
+		}
+		
 		
 		$totalCount = assetPeer::doCount($c);
 		

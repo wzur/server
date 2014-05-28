@@ -9,12 +9,12 @@ class KalturaTimedThumbAsset extends KalturaThumbAsset
 	 * The offset to show the image within the video 
 	 * @var float
 	 */
-	public $offset;
+	public $thumbCuePointId;
 
 	
 	private static $map_between_objects = array
 	(
-		"offset",
+		"thumbCuePointId",
 	);
 	
 	public function getMapBetweenObjects ( )

@@ -7,7 +7,7 @@
  */ 
 class timedThumbAsset extends thumbAsset
 {
-	const CUSTOM_DATA_FIELD_OFFSET = "offest";
+	const CUSTOM_DATA_FIELD_THUMB_CUE_POINT_ID = "thumbCuePointID";
 
 	/* (non-PHPdoc)
 	 * @see Baseasset::applyDefaultValues()
@@ -18,7 +18,7 @@ class timedThumbAsset extends thumbAsset
 		$this->setType(ThumbCuePointPlugin::getAssetTypeCoreValue(timedThumbAssetType::TIMED_THUMB_ASSET));
 	}
 
-	public function getOffset()			{return $this->getFromCustomData(self::CUSTOM_DATA_FIELD_OFFSET);}
-	public function setOffset($v)		{$this->putInCustomData(self::CUSTOM_DATA_FIELD_OFFSET, $v);}
+	public function getThumbCuePointID()			{return $this->getFromCustomData(self::CUSTOM_DATA_FIELD_THUMB_CUE_POINT_ID);}
+	public function setThumbCuePointID($v)			{$this->putInCustomData(self::CUSTOM_DATA_FIELD_THUMB_CUE_POINT_ID, (string)$v);}
 
 }
