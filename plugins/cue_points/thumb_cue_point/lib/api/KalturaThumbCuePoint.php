@@ -59,9 +59,8 @@ class KalturaThumbCuePoint extends KalturaCuePoint
 	 */
 	public function validateForInsert($propertiesToSkip = array())
 	{
-		$this->validatePropertyNotNull("timedThumbAssetId");
-		
-		$this->validateTimedThumbAssetId();
+		if($this->timedThumbAssetId !== null)	
+			$this->validateTimedThumbAssetId();
 		
 		parent::validateForInsert($propertiesToSkip);
 	}
@@ -70,7 +69,10 @@ class KalturaThumbCuePoint extends KalturaCuePoint
 	{
 		$timedThumb = assetPeer::retrieveByPK($this->timedThumbAssetId);
 		
-		if(!$timedThumb || $timedThumb->getType() != kPluginableEnumsManager::apiToCore('assetType', KalturaAssetType::TIMED_THUMB_ASSET))
+		if(!$timedThumb)
+			throw new KalturaAPIException(KalturaErrors::ASSET_ID_NOT_FOUND, $this->timedThumbAssetId);
+		
+		if($timedThumb->getType() != kPluginableEnumsManager::apiToCore('assetType', KalturaAssetType::TIMED_THUMB_ASSET))
 			throw new KalturaAPIException(KalturaErrors::THUMB_ASSET_ID_IS_NOT_TIMED_THUMB_TYPE, $this->timedThumbAssetId);
 	}
 }
