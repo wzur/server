@@ -1,6 +1,6 @@
 <?php
 /**
- * @package plugins.CaptionAssetItemCuePoint
+ * @package plugins.captionAssetItemCuePoint
  * @subpackage lib.enum
  */
 class CaptionAssetItemCuePointType implements IKalturaPluginEnum, CuePointType

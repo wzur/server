@@ -1,6 +1,6 @@
 <?php
 /**
- * @package plugins.aptionAssetItemCuePoint
+ * @package plugins.captionAssetItemCuePoint
  * @subpackage api.objects
  */
 class KalturaCaptionAssetItemCuePoint extends KalturaCuePoint
