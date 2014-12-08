@@ -35,4 +35,6 @@ class ThumbCuePoint extends CuePoint implements IMetadataObject
 	{
 		return ThumbCuePointMetadataPlugin::getMetadataObjectTypeCoreValue(ThumbCuePointMetadataObjectType::THUMB_CUE_POINT);
 	}
+
+	public function getIsUserBased()	{ return false; }
 }

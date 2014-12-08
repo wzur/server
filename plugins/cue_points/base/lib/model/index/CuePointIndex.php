@@ -68,6 +68,7 @@ class CuePointIndex extends BaseIndexObject
 				'updated_at' => 'updatedAt',
 				'str_entry_id' => 'entryId',
 				'str_cue_point_id' => 'id',
+				'is_user_based' => 'isUserBased',
 			);
 		}
 		return self::$fieldsMap;
@@ -106,6 +107,7 @@ class CuePointIndex extends BaseIndexObject
 				'updated_at' => IIndexable::FIELD_TYPE_DATETIME,
 				'str_entry_id' => IIndexable::FIELD_TYPE_STRING,
 				'str_cue_point_id' => IIndexable::FIELD_TYPE_STRING,
+				'is_user_based' => IIndexable::FIELD_TYPE_INTEGER,
 			);
 		}
 		return self::$typesMap;
@@ -156,6 +158,7 @@ class CuePointIndex extends BaseIndexObject
 				'cue_point.UPDATED_AT' => 'updated_at',
 				'cue_point.STR_ENTRY_ID' => 'str_entry_id',
 				'cue_point.STR_CUE_POINT_ID' => 'str_cue_point_id',
+				'cue_point.IS_USER_BASED' => 'is_user_based',
 			);
 		}
 		return self::$searchableFieldsMap;

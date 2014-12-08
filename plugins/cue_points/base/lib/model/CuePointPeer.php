@@ -24,6 +24,7 @@ class CuePointPeer extends BaseCuePointPeer implements IMetadataPeer
 	const STR_CUE_POINT_ID = 'cue_point.STR_CUE_POINT_ID';
 	const FORCE_STOP = 'cue_point.FORCE_STOP';
 	const DURATION = 'cue_point.DURATION';
+	const IS_USER_BASED = 'cue_point.IS_USER_BASED';
 	
 	// cache classes by their type
 	protected static $class_types_cache = array();
@@ -62,16 +63,7 @@ class CuePointPeer extends BaseCuePointPeer implements IMetadataPeer
 			// by adding a public property on the cuepoint object and checking (user==kuser OR is public)
 			//$c->addAnd(CuePointPeer::KUSER_ID, $kuser->getId());
 			$criterionUserOrPublic = $c->getNewCriterion(CuePointPeer::KUSER_ID, $kuser->getId());
-			$criterionUserOrPublic->addOr(
-										$c->getNewCriterion(
-											CuePointPeer::TYPE,
-											array(
-												ThumbCuePointPlugin::getCuePointTypeCoreValue(ThumbCuePointType::THUMB),
-												CodeCuePointPlugin::getCuePointTypeCoreValue(CodeCuePointType::CODE),
-											),
-											Criteria::IN
-										)
-									);
+			$criterionUserOrPublic->addOr($c->getNewCriterion(CuePointPeer::IS_USER_BASED, 0));
 
 			$c->addAnd($criterionUserOrPublic);
 		}

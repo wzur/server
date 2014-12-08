@@ -366,4 +366,6 @@ abstract class CuePoint extends BaseCuePoint implements IIndexable
 		
 		return parent::preInsert($con);
 	}
+
+	public function getIsUserBased()	{ return true; }
 } // CuePoint

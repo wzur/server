@@ -23,4 +23,5 @@ class EventCuePoint extends CuePoint
 		$this->setType(EventCuePointPlugin::getCuePointTypeCoreValue(EventCuePointType::EVENT));
 	}
 	
+	public function getIsUserBased()	{ return false; }
 }

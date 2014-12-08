@@ -52,8 +52,9 @@ class CuePointFilter extends baseObjectFilter
 				"_eq_parent_id",
 				"_in_parent_id",
 				"_eq_cue_point_type", 
-				"_in_cue_point_type"
-			) , NULL );
+				"_in_cue_point_type",
+				"_eq_is_user_based",
+		) , NULL );
 
 		$this->allowed_order_fields = array (
 			"created_at", 
@@ -86,6 +87,9 @@ class CuePointFilter extends baseObjectFilter
 		if($field_name == 'duration')
 			return CuePointPeer::DURATION;
 			
+		if($field_name == 'is_user_based')
+			return CuePointPeer::IS_USER_BASED;
+
 		return CuePointPeer::translateFieldName( $field_name , $this->field_name_translation_type , BasePeer::TYPE_COLNAME );
 	}
 
