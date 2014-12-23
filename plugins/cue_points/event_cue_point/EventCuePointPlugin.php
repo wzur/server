@@ -106,9 +106,4 @@ class EventCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint, IKa
 				self::EVENT_CUE_POINT_CONSUMER
 		);
 	}
-	
-	public static function getTypesToIndexOnEntry()
-	{
-		return array();
-	}
 }

@@ -5,16 +5,10 @@
  */
 class KalturaCuePointFilter extends KalturaCuePointBaseFilter
 {
-	/**
-	 * @var string
-	 */
-	public $freeText;
-	
 	static private $map_between_objects = array
 	(
 		"cuePointTypeEqual" => "_eq_type",
 		"cuePointTypeIn" => "_in_type",
-		"freeText" => "_free_text",
 	);
 
 	public function getMapBetweenObjects()

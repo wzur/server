@@ -15,9 +15,4 @@ interface IKalturaCuePoint extends IKalturaPermissions, IKalturaEnumerator, IKal
 	 * @return string external API value of dynamic enum.
 	 */
 	public static function getApiValue($valueName);
-	
-	/**
-	 * @return array of core cue point types to index on entry.
-	 */
-	public static function getTypesToIndexOnEntry();
 }

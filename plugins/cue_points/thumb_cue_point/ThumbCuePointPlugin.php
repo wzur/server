@@ -272,9 +272,4 @@ class ThumbCuePointPlugin extends KalturaPlugin implements IKalturaCuePoint, IKa
 			
 		return $scene;
 	}
-	
-	public static function getTypesToIndexOnEntry()
-	{
-		return array(self::getCuePointTypeCoreValue(ThumbCuePointType::THUMB));
-	}
 }
