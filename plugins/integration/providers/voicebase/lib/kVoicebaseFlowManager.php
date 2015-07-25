@@ -5,20 +5,20 @@ class kVoicebaseFlowManager implements kBatchJobStatusEventConsumer, kObjectRepl
 
     private $baseEndpointUrl = null;
 
-	/* (non-PHPdoc)
-	 * @see kBatchJobStatusEventConsumer::shouldConsumeJobStatusEvent()
-	 */
-	public function shouldConsumeJobStatusEvent(BatchJob $dbBatchJob)
-	{
+    /* (non-PHPdoc)
+     * @see kBatchJobStatusEventConsumer::shouldConsumeJobStatusEvent()
+     */
+    public function shouldConsumeJobStatusEvent(BatchJob $dbBatchJob)
+    {
         if($dbBatchJob->getStatus() == BatchJob::BATCHJOB_STATUS_FINISHED && $dbBatchJob->getJobType() == IntegrationPlugin::getBatchJobTypeCoreValue(IntegrationBatchJobType::INTEGRATION))
-		{
+        {
             $data = $dbBatchJob->getData();
             $providerType = $data->getProviderType();
             if ($providerType == VoicebasePlugin::getProviderTypeCoreValue(VoicebaseProvider::VOICEBASE))
                 return true;
-		}
+        }
         return false;
-	}
+    }
 
     /* (non-PHPdoc)
      * @see kObjectReplacedEventConsumer::shouldConsumeReplacedEvent()
@@ -40,7 +40,7 @@ class kVoicebaseFlowManager implements kBatchJobStatusEventConsumer, kObjectRepl
 	 */
 	public function updatedJob(BatchJob $dbBatchJob)
 	{	
-		$data = $dbBatchJob->getData();
+        $data = $dbBatchJob->getData();
         $providerData = $data->getProviderData();
         $entryId = $providerData->getEntryId();
         $partnerId = $dbBatchJob->getPartnerId() !=  self::BATCH_PARTNER_ID ? $dbBatchJob->getPartnerId() : $providerData->partnerId;
@@ -58,7 +58,6 @@ class kVoicebaseFlowManager implements kBatchJobStatusEventConsumer, kObjectRepl
         }
         $formatsArray = explode(',',$formatsString);
         $contentsArray = $clientHelper->getRemoteTranscripts($entryId, $formatsArray);
-        KalturaLog::debug('contents are - ' . print_r($contentsArray, true));
         $transcripts = self::getObjects($entryId, $spokenLanguage, array(TranscriptPlugin::getAssetTypeCoreValue(TranscriptAssetType::TRANSCRIPT)));
         $captions = self::getObjects($entryId, $spokenLanguage, array(CaptionPlugin::getAssetTypeCoreValue(CaptionAssetType::CAPTION)));
         
@@ -72,27 +71,19 @@ class kVoicebaseFlowManager implements kBatchJobStatusEventConsumer, kObjectRepl
             }
             
             $captionFormatConst = constant("KalturaCaptionType::" . $format);
-            KalturaLog::debug('XXXXXXXXXXXX - format - ' . $format . ' caption format ' . $captionFormatConst);
             if($captionFormatConst)
             {
                 if(isset($captions[$captionFormatConst]))
                     $caption = $captions[$captionFormatConst];
                 else
                 {
-                    KalturaLog::debug('AAAAAAAAAAAAAAAAAA - 1');
                     $caption = new CaptionAsset();
-                    KalturaLog::debug('AAAAAAAAAAAAAAAAAA - 2');
                     $caption->setEntryId($entryId);
-                    KalturaLog::debug('AAAAAAAAAAAAAAAAAA - 3');
                     $caption->setPartnerId($partnerId);
-                    KalturaLog::debug('AAAAAAAAAAAAAAAAAA - 4');
                     $caption->setContainerFormat($captionFormatConst);
-                    KalturaLog::debug('AAAAAAAAAAAAAAAAAA - 5');
                     $caption->setStatus(CaptionAsset::ASSET_STATUS_QUEUED);
-                    KalturaLog::debug('XXXXXXXXXXXX - caption - ' . print_r($caption, true));
                     $caption->save();
                 }
-                KalturaLog::debug('AAAAAAAAAAAAAAAAAA- out');
                 self::setObjectContent($caption, $content, $format);
             }
         }
@@ -188,5 +179,4 @@ class kVoicebaseFlowManager implements kBatchJobStatusEventConsumer, kObjectRepl
         $assetObject->setStatus(AttachmentAsset::ASSET_STATUS_READY);
         $assetObject->save();
     } 
-
 }
