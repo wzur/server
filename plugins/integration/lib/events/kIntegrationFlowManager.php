@@ -56,6 +56,24 @@ class kIntegrationFlowManager implements kBatchJobStatusEventConsumer
 				$batchJob->setEntryId($asset->getEntryId());
 		}
 		
+		$providerData = $data->getProviderData();
+		
+		if(class_exists('kVoicebaseJobProviderData') && $providerData instanceof kVoicebaseJobProviderData)
+		{
+			$foramtsString = $providerData->getCaptionAssetFormats();
+			$providerData->getCaptionAssetFormats(strtoupper($foramtsString));
+		
+			if ($partnerId != Partner::BATCH_PARTNER_ID)
+			{
+				$partner = PartnerPeer::retrieveByPK($partnerId);
+				$voiceParams = $partner->getVoicebaseParams();
+		
+				$providerData->setApiKey($voiceParams['apiKey']);
+				$providerData->setApiPassword($voiceParams['apiPassword']);
+			}
+			$data->setProviderData($providerData);
+		}
+		
 		$batchJob->setStatus(BatchJob::BATCHJOB_STATUS_DONT_PROCESS);
 		
 		$jobType = IntegrationPlugin::getBatchJobTypeCoreValue(IntegrationBatchJobType::INTEGRATION);

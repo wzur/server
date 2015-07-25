@@ -836,6 +836,9 @@ class Partner extends BasePartner
 	public function setStripThumbProfile($v) { $this->putInCustomData('stripThumbProfile', $v);}
 	public function getStripThumbProfile() { return $this->getFromCustomData('stripThumbProfile');}
 	
+	public function setVoicebaseParams($v) { $this->putInCustomData('VoicebaseParams', $v);}
+	public function getVoicebaseParams() {return $this->getFromCustomData('VoicebaseParams');}
+	
 	// additionalParams - key/value array
 	public function getAdditionalParams() 
 	{ 
