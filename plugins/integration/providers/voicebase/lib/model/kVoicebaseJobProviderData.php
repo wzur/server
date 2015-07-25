@@ -21,11 +21,6 @@ class kVoicebaseJobProviderData extends kIntegrationJobProviderData
 	 * @var string
 	 */
 	private $inputTranscriptId;
-	
-	/**
-	 * @var string
-	 */
-	private $outputTranscriptIds;
     
 	/**
 	 * @var string
@@ -98,22 +93,6 @@ class kVoicebaseJobProviderData extends kIntegrationJobProviderData
 	public function setInputTranscriptId($inputTranscriptId)
 	{
 		$this->inputTranscriptId = $inputTranscriptId;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOutputTranscriptIds()
-	{
-		return $this->outputTranscriptIds;
-	}
-	    
-	/**
-	 * @param string outputTranscriptIds
-	 */
-	public function setOutputTranscriptIds($outputTranscriptIds)
-	{
-		$this->outputTranscriptIds = $outputTranscriptIds;
 	}
     
 	/**

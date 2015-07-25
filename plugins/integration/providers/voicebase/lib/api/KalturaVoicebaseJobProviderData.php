@@ -22,13 +22,6 @@ class KalturaVoicebaseJobProviderData extends KalturaIntegrationJobProviderData
 	 * @var string
 	 */
 	public $transcriptId;
- 	
-	/**
-	 * output Transcript-asset IDs
-	 * @var string
-	 * @readonly
-	 */
-	public $outputTranscriptIds;
 	    
 	/**
 	 * Caption formats
@@ -68,7 +61,6 @@ class KalturaVoicebaseJobProviderData extends KalturaIntegrationJobProviderData
 		"entryId",
 		"flavorAssetId",
 		"transcriptId" => "inputTranscriptId",
-		"outputTranscriptIds",
 		"captionAssetFormats",
 		"apiKey",
 		"apiPassword",
