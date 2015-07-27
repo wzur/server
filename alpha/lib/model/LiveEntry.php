@@ -152,6 +152,22 @@ abstract class LiveEntry extends entry
 			kBusinessConvertDL::decideLiveProfile($this);
 	}
 	
+	/* (non-PHPdoc)
+	 * @see Baseentry::postInsert()
+	 */
+	public function postSave(PropelPDO $con = null)
+	{
+		if(!$this->wasObjectSaved())
+			return;
+		
+		parent::postSave($con);
+		
+		if($this->isCustomDataModified('live_status'))
+		{
+			
+		}
+	}
+	
 	public function setOfflineMessage($v)
 	{
 		$this->putInCustomData("offlineMessage", $v);
@@ -247,11 +263,17 @@ abstract class LiveEntry extends entry
 	protected function setFirstBroadcast ( $v )	{	$this->putInCustomData ( "first_broadcast" , $v );	}
 	public function getFirstBroadcast (  )	{	return $this->getFromCustomData( "first_broadcast");	}
 	
+	protected function setFirstConnect ( $v )	{	$this->putInCustomData ( "first_connect" , $v );	}
+	public function getFirstConnect (  )	{	return $this->getFromCustomData( "first_connect");	}
+	
 	public function setCurrentBroadcastStartTime( $v )	{ $this->putInCustomData ( "currentBroadcastStartTime" , $v ); }
 	public function getCurrentBroadcastStartTime()		{ return $this->getFromCustomData( "currentBroadcastStartTime", null, 0 ); }
 
 	public function setLastBroadcast ( $v )	{	$this->putInCustomData ( "last_broadcast" , $v );	}
 	public function getLastBroadcast (  )	{	return $this->getFromCustomData( "last_broadcast");	}
+	
+	public function setLastConnect ( $v )	{	$this->putInCustomData ( "last_connect" , $v );	}
+	public function getLastConnect (  )	{	return $this->getFromCustomData( "last_connect");	}
 	
 	protected function setLastBroadcastEndTime ( $v )	{	$this->putInCustomData ( "last_broadcast_end_time" , $v );	}
 	public function getLastBroadcastEndTime (  )	{	return (int) $this->getFromCustomData( "last_broadcast_end_time", null, 0);	}
@@ -611,6 +633,189 @@ abstract class LiveEntry extends entry
 			$applicationName ? $applicationName : MediaServer::DEFAULT_APPLICATION);
 		$this->putInCustomData("server-$index", $server, LiveEntry::CUSTOM_DATA_NAMESPACE_MEDIA_SERVERS);
 		$this->setLiveStatus(LiveEntryStatus::PLAYABLE);
+	}
+	
+	public function updateLiveStatusConnected($mediaServer, kLiveEntryStatusOptions $liveEntryStatusOptions)
+	{
+		if(is_null($this->getFirstConnect()))
+			$this->setFirstConnect(kApiCache::getTime());
+		
+		$server = new kLiveMediaServer($index, $hostname, $mediaServer ? $mediaServer->getDc() : null, $mediaServer ? $mediaServer->getId() : null, $applicationName ? $applicationName : MediaServer::DEFAULT_APPLICATION);
+		$this->putInCustomData("server-$index", $server, LiveEntry::CUSTOM_DATA_NAMESPACE_MEDIA_SERVERS);
+		$this->setLastConnect(kApiCache::getTime());
+		$this->setLiveStatus(LiveEntryStatus::CONNECTED);
+	}
+	
+	public function updateLiveStatusStopped($mediaServer, $index, $hostname, $applicationName = null)
+	{
+		$server = $this->getFromCustomData("server-$index", LiveEntry::CUSTOM_DATA_NAMESPACE_MEDIA_SERVERS);
+		if($server && $server->getHostname() == $hostname)
+		{
+			$server = $this->removeFromCustomData("server-$index", LiveEntry::CUSTOM_DATA_NAMESPACE_MEDIA_SERVERS);
+			$this->setLastBroadcastEndTime(kApiCache::getTime());
+		}
+		
+		if(!$this->hasMediaServer()) {
+			$this->setLiveStatus(LiveEntryStatus::STOPPED);
+		}
+		
+		if(!$this->hasMediaServer() && $this->getRecordedEntryId())
+		{
+			$this->setRedirectEntryId($this->getRecordedEntryId());
+		}
+		
+		if ( count( $this->getMediaServers() ) == 0 )
+		{
+			// Reset currentBroadcastStartTime
+			// Note that this value is set in the media-server, at KalturaLiveManager::onPublish()
+			if ( $this->getCurrentBroadcastStartTime() )
+			{
+				$this->setCurrentBroadcastStartTime( 0 );
+			}
+		}
+	}
+	
+	public function updateLiveStatusPlayable($mediaServer, $index, $hostname, $applicationName = null)
+	{
+		$this->setRedirectEntryId(null);
+		if(is_null($this->getFirstBroadcast())) 
+			$this->setFirstBroadcast(kApiCache::getTime());
+		
+		$key = $this->getId() . "_{$hostname}_{$index}";
+		if($this->storeInCache($key) && $this->isMediaServerRegistered($index, $hostname))
+			return;
+		
+		$this->setLastBroadcast(kApiCache::getTime());
+		
+		$server = new kLiveMediaServer($index, $hostname, $mediaServer ? $mediaServer->getDc() : null, $mediaServer ? $mediaServer->getId() : null, $applicationName ? $applicationName : MediaServer::DEFAULT_APPLICATION);
+		$this->putInCustomData("server-$index", $server, LiveEntry::CUSTOM_DATA_NAMESPACE_MEDIA_SERVERS);
+		
+		$this->setLiveStatus(LiveEntryStatus::PLAYABLE);
+		
+		if($this->save())
+		{
+			if($index == MediaServerIndex::PRIMARY && $this->getRecordStatus())
+			{
+				$createRecordedEntry = false;
+				if(!$this->getRecordedEntryId())
+				{
+					$createRecordedEntry = true;
+				}
+				elseif($this->getRecordStatus() == RecordStatus::PER_SESSION && ($this->getLastBroadcastEndTime() + kConf::get('live_session_reconnect_timeout', 'local', 180) < time()))
+				{
+					$createRecordedEntry = true;
+				}
+			
+				if($createRecordedEntry)
+					$this->createRecordedEntry($mediaServerIndex);
+			}
+		}
+		
+	}
+	
+	public function updateLiveStatusBroadcasting($mediaServer, $index, $hostname, $applicationName = null)
+	{
+		if($this->storeInCache($key) && $this->isMediaServerRegistered($index, $hostname))
+			return;
+	
+		$this->putInCustomData("server-$index", $server, LiveEntry::CUSTOM_DATA_NAMESPACE_MEDIA_SERVERS);
+		$this->setLiveStatus(LiveEntryStatus::BROADCASTING);
+	}
+	
+	public function updateLiveStatus(kLiveEntryStatusOptions $liveEntryStatusOptions)
+	{
+		$mediaServer = MediaServerPeer::retrieveByHostname($hostname);
+		if (!$mediaServer)
+		{
+			KalturaLog::info("External media server with hostname [$hostname] is being used to stream this entry");
+		}
+		
+		switch($status)
+		{
+			case LiveEntryStatus::CONNECTED:
+				$this->updateLiveStatusConnected($liveEntryStatusOptions);
+				break;
+			
+			case LiveEntryStatus::PLAYABLE:
+				$this->updateLiveStatusPlayable($liveEntryStatusOptions);
+				break;
+			
+			case LiveEntryStatus::STOPPED:
+				$this->updateLiveStatusStopped($liveEntryStatusOptions);
+				break;
+			
+			case LiveEntryStatus::BROADCASTING:
+				$this->updateLiveStatusBroadcasting($liveEntryStatusOptions);
+				break;
+				
+			default:
+				KalturaLog::debug("CAnnot update live status to un-supported value [$status] for entry [{$this->getId()}]");
+		}
+	}
+	
+	/**
+	 * @param LiveEntry $dbEntry
+	 * @return entry
+	 */
+	private function createRecordedEntry($mediaServerIndex)
+	{
+		$lock = kLock::create("live_record_" . $this->getId());
+	
+		if ($lock && !$lock->lock(self::KLOCK_CREATE_RECORDED_ENTRY_GRAB_TIMEOUT , self::KLOCK_CREATE_RECORDED_ENTRY_HOLD_TIMEOUT))
+		{
+			return;
+		}
+		 
+		// If while we were waiting for the lock, someone has updated the recorded entry id - we should use it.
+		$this->reload();
+		if(($this->getRecordStatus() != RecordStatus::PER_SESSION) && ($this->getRecordedEntryId())) {
+			$lock->unlock();
+			$recordedEntry = entryPeer::retrieveByPK($this->getRecordedEntryId());
+			return $recordedEntry;
+		}
+		 
+		$recordedEntry = null;
+		try{
+			$recordedEntryName = $this->getName();
+			if($this->getRecordStatus() == RecordStatus::PER_SESSION)
+				$recordedEntryName .= ' ' . ($this->getRecordedEntryIndex() + 1);
+	
+			$recordedEntry = new entry();
+			$recordedEntry->setType(entryType::MEDIA_CLIP);
+			$recordedEntry->setMediaType(entry::ENTRY_MEDIA_TYPE_VIDEO);
+			$recordedEntry->setRootEntryId($this->getId());
+			$recordedEntry->setName($recordedEntryName);
+			$recordedEntry->setDescription($this->getDescription());
+			$recordedEntry->setSourceType(EntrySourceType::RECORDED_LIVE);
+			$recordedEntry->setAccessControlId($this->getAccessControlId());
+			$recordedEntry->setConversionProfileId($this->getConversionProfileId());
+			$recordedEntry->setKuserId($this->getKuserId());
+			$recordedEntry->setPartnerId($this->getPartnerId());
+			$recordedEntry->setModerationStatus($this->getModerationStatus());
+			$recordedEntry->setIsRecordedEntry(true);
+			$recordedEntry->setTags($this->getTags());
+	
+			$recordedEntry->save();
+	
+			$this->setRecordedEntryId($recordedEntry->getId());
+			$this->save();
+				
+			$assets = assetPeer::retrieveByEntryId($this->getId(), array(assetType::LIVE));
+			foreach($assets as $asset)
+			{
+				/* @var $asset liveAsset */
+				$asset->incLiveSegmentVersion($mediaServerIndex);
+				$asset->save();
+			}
+		}
+		catch(Exception $e){
+			$lock->unlock();
+			throw $e;
+		}
+	
+		$lock->unlock();
+	
+		return $recordedEntry;
 	}
 	
 	protected function isMediaServerRegistered($index, $hostname)

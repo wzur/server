@@ -395,7 +395,7 @@ class LiveStreamService extends KalturaLiveEntryService
 	
 		if(in_array($liveStreamEntry->getSource(), array(KalturaSourceType::LIVE_STREAM, KalturaSourceType::LIVE_STREAM_ONTEXTDATA_CAPTIONS)))
 		{
-			return $liveStreamEntry->hasMediaServer();
+			return $liveStreamEntry->hasMediaServer() && $liveStreamEntry->getLiveStatus() == LiveEntryStatus::PLAYABLE;
 		}
 		
 		$dpda= new DeliveryProfileDynamicAttributes();

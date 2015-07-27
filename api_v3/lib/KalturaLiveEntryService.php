@@ -342,6 +342,35 @@ class KalturaLiveEntryService extends KalturaEntryService
 		$entry->fromObject($dbEntry, $this->getResponseProfile());
 		return $entry;
 	}
+	
+	/**
+	 * Update live entry status
+	 *
+	 * @action updateLiveStatus
+	 * @param string $entryId Live entry id
+	 * @param KalturaLiveEntryStatusOptions $liveEntryStatusOptions
+	 * @return KalturaLiveEntry The updated live entry
+	 *
+	 * @throws KalturaErrors::ENTRY_ID_NOT_FOUND
+	 * @throws KalturaErrors::MEDIA_SERVER_NOT_FOUND
+	 */
+	function updateLiveStatusAction($entryId, KalturaLiveEntryStatusOptions $liveEntryStatusOptions)
+	{
+		$this->dumpApiRequest($entryId);
+		
+		$dbEntry = entryPeer::retrieveByPK($entryId);
+		if (!$dbEntry || !($dbEntry instanceof LiveEntry))
+			throw new KalturaAPIException(KalturaErrors::ENTRY_ID_NOT_FOUND, $entryId);
+		
+		$kLiveEntryStatusOptions = $liveEntryStatusOptions->toObject();
+		$dbEntry->updateLiveStatus($kLiveEntryStatusOptions);
+		$dbEntry->setRedirectEntryId(null);
+		$dbEntry->save();
+	
+		$entry = KalturaEntryFactory::getInstanceByType($dbEntry->getType());
+		$entry->fromObject($dbEntry, $this->getResponseProfile());
+		return $entry;
+	}
 
 	/**
 	 * Validates all registered media servers
