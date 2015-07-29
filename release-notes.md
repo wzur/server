@@ -10,7 +10,6 @@
 - Added 'Transcript' in configurations/plugins.ini.base and configurations/plugins.ini.admin
 
 #### Deployment Scripts ####
-
 Run:
  	- php /opt/kaltura/app/deployment/base/scripts/installPlugins.php
 
