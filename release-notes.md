@@ -1,4 +1,231 @@
+# Jupiter-10.17.0 #
+
+## new Transcript asset ##
+
+-- Issue Type: New Feature
+-- Issue ID: PLAT-2622
+
+#### Configuration ####
+ 
+- Added 'Transcript' in configurations/plugins.ini.base and configurations/plugins.ini.admin
+
+#### Deployment Scripts ####
+
+Run:
+ 	- php /opt/kaltura/app/deployment/base/scripts/installPlugins.php
+
+#### Known Issues & Limitations ####
+
+None.
+
+# Jupiter-10.16.0 #
+
+## New applehttp to multicast delivery profile ##
+
+-- Issue Type: New Feature
+-- Issue ID: PLAT-3510
+
+#### Configuration ####
+ 
+None.
+
+#### Deployment Scripts ####
+
+ 	- (Already executed on production) php /opt/kaltura/app/deployment/updates/scripts/2015_07_20_create_applehttp_to_multicast_delivery_profile.php
+
+#### Known Issues & Limitations ####
+
+None.
+
+## Edge Server - Rename column name ##
+
+-- Issue Type: Bug report
+-- Issue ID: PLAT-3441
+
+#### Configuration ####
+ 
+None.
+
+#### Deployment Scripts ####
+
+ - mysql -h@db_host@ -u@db_user@ -p@db_pass@ -P3306 kaltura < deployment/updates/sql/2015_07_26_alter_edge_server_column_name.sql
+
+#### Known Issues & Limitations ####
+
+None.
+
+## Cache response-profile results ##
+
+- Issue Type: optimization
+
+### Couchbase Deployment Instructions ###
+Download Couchbase server and install according to [official instructions](http://www.couchbase.com/nosql-databases/downloads#Couchbase_Server "http://www.couchbase.com/").
+
+#### Server Setup ####
+
+ - Install Couchbase PHP extension: `pecl install couchbase`
+     - Required `php-devel` and `libcouchbase-devel`.
+ - Add couchbase extension in your php.ini file.
+ - Setup Couchbase server [http://@WWW_HOST@:8091](http://@WWW_HOST@:8091 "").
+ - Define username and password to be used later in cache.ini configuration.
+ - Create new data bucket named `ResponseProfile`.
+
+#### Views Setup ####
+
+ - Create design-document: `_design/dev_deploy1`.
+ - Create View: `objectSpecific`:
+```javascript
+	function (doc, meta) {
+    	if (meta.type == "json") {
+    		if(doc.type == "primaryObject"){
+    			emit(doc.objectKey, null);
+    		}
+    	}
+}
+```
+
+ - Create View: `relatedObjectSessions`:
+```javascript
+	function (doc, meta) {
+    	if (meta.type == "json") {
+    		if(doc.type == "relatedObject"){
+    	 			emit([doc.triggerKey, doc.objectType, doc.sessionKey], null);
+    		}
+    	}
+}
+```
+	
+ - Create View: `objectSessions`:
+```javascript
+	function (doc, meta) {
+	 	if (meta.type == "json") {
+	 		if(doc.type == "primaryObject"){
+	 			emit([doc.objectKey, doc.sessionKey], null);
+	 		}
+	 	}
+}
+```
+
+ - Create View: `objectTypeSessions`:
+```javascript
+	function (doc, meta) {
+	 	if (meta.type == "json") {
+	 		if(doc.type == "primaryObject"){
+	 			emit([doc.objectType, doc.sessionKey], null);
+	 		}
+	 	}
+}
+```
+	
+ - Create View: `sessionType`:
+```javascript
+	function (doc, meta) {
+    	if (meta.type == "json") {
+    		if(doc.type == "primaryObject"){
+    			emit([doc.sessionKey, doc.objectKey], null);
+    		}
+    	}
+}
+```
+	
+ - Create View: `relatedObjectsTypes`:
+```javascript
+	function (doc, meta) {
+		if (meta.type == "json") {
+			if(doc.type == "relatedObject"){
+	 			emit([doc.triggerKey, doc.objectType], null);
+			}
+		}
+}
+```
+ - Publish the design-document.
+
+### Configuration ###
+ - Update configurations/cache.ini under couchbase section to use the username and password you configured for couchbase server.
+ - Add new worker into configurations/batch/batch.ini:
+
+```ini
+[KAsyncRecalculateCache : JobHandlerWorker]
+id													= 590
+friendlyName										= Recalculate Cache
+type												= KAsyncRecalculateCache
+scriptPath											= batch/batches/Cache/KAsyncRecalculateCacheExe.php
+```
+ - Add new module to the admin-console in admin.ini:
+
+```ini
+moduls.recalculateResponseProfile.enabled = true
+moduls.recalculateResponseProfile.permissionType = 2
+moduls.recalculateResponseProfile.label = "Recalculate response-profile cache"
+moduls.recalculateResponseProfile.permissionName = FEATURE_RECALCULATE_RESPONSE_PROFILE_CACHE
+moduls.recalculateResponseProfile.basePermissionType = 2
+moduls.recalculateResponseProfile.basePermissionType =
+moduls.recalculateResponseProfile.basePermissionName =
+moduls.recalculateResponseProfile.group = GROUP_ENABLE_DISABLE_FEATURES
+```
+
+### Deployment Scripts ###
+ - php deployment/updates/scripts/add_permissions/2015_06_09_response_profile.php
+
+### Known Issues & Limitations ###
+None.
+
+---
 # Jupiter-10.15.0 #
+
+## Add Developer Partner ##
+
+- Issue Type: New Feature  
+- Issue ID: PLAT-3326  
+
+### Configuration ###
+
+ - Added new e-mail configuration in /batch/batches/Mailer/emails_en.ini
+ - Remark for production configuration: add /alpha/crond/kaltura/monthly_quota_storage_update.sh script to kaltura.daily cron jobs 
+ 
+### Deployment Scripts ###
+
+- None.  
+		
+## File sync pull without jobs ##
+
+- Issue Type: optimization
+- Issue ID: N/A  
+
+### Configuration ###
+
+ - Update the file sync import worker configuration, sample config:
+ 
+[KAsyncFileSyncImport : PeriodicWorker]
+type                            = KAsyncFileSyncImport
+scriptPath                      = ../plugins/multi_centers/batch/FileSyncImport/KAsyncFileSyncImportExe.php
+params.curlTimeout              = 180
+params.fileChmod                = 755
+params.fileOwner                = apache
+
+[KAsyncFileSyncImportSmall : KAsyncFileSyncImport]
+id                      = 27020
+friendlyName            = FileSyncImportSmall
+filter.estimatedEffortLessThan = 5000000
+params.maxCount         = 100
+params.maxSize          = 10000000
+
+[KAsyncFileSyncImportBig : KAsyncFileSyncImport]
+id                      = 27030
+friendlyName            = FileSyncImportBig
+filter.estimatedEffortGreaterThan = 4999999
+params.maxCount         = 1
+
+[KAsyncFileSyncImportDelayed : KAsyncFileSyncImport]
+id                      = 27040
+friendlyName            = FileSyncImportDelayed
+params.maxCount         = 1
+filter.createdAtLessThanOrEqual = -39600	; now() - 11 hours
+ 
+### Deployment Scripts ###
+
+ - php deployment/updates/scripts/add_permissions/2015_07_06_file_sync_service.php
+ - php deployment/base/scripts/createQueryCacheTriggers.php create @db_host@ @db_user@ @db_pass@ realrun
 
 ## Metadata Change HTTP Notification ##
 
