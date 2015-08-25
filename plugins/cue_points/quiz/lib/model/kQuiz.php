@@ -138,5 +138,9 @@ class kQuiz {
 		$this->showCorrectAfterSubmission = $showCorrectAfterSubmission;
 	}
 
+	public function createPdfFromQuiz()
+	{
+		fdpf;
+	}
 
 }

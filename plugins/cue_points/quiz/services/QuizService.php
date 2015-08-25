@@ -117,7 +117,7 @@ class QuizService extends KalturaBaseService
 	 * @param KalturaFilterPager $pager
 	 * @return KalturaQuizListResponse
 	 */
-	function listAction(KalturaQuizFilter $filter = null, KalturaFilterPager $pager = null)
+	public function listAction(KalturaQuizFilter $filter = null, KalturaFilterPager $pager = null)
 	{
 		if (!$filter)
 			$filter = new KalturaQuizFilter;
@@ -126,6 +126,71 @@ class QuizService extends KalturaBaseService
 			$pager = new KalturaFilterPager ();
 
 		return $filter->getListResponse($pager, $this->getResponseProfile());
+	}
+
+	/**
+	 * 
+	 * @action getQuizQuestionsPDF
+	 * @param string $entryId
+	 * @return string 
+	 * @throws KalturaAPIException
+	 */
+	public function getQuizQuestionsPDFAction($entryId)
+	{
+		$dbEntry = entryPeer::retrieveByPK($entryId);
+		if (!$dbEntry)
+			throw new KalturaAPIException(KalturaErrors::ENTRY_ID_NOT_FOUND, $entryId);
+		$kQuiz = QuizPlugin::validateAndGetQuiz($dbEntry);
+
+
+		$pdf=new PDF("P","in");
+		$pdf->SetMargins(1,1,1);
+		$pdf->AddPage();
+		$pdf->SetFont('Times','',12);
+		$pdf->SetFillColor(240, 100, 100);
+		$pdf->SetFont('Times','BU',12);
+		$pdf->Cell(0, .25, "Quiz [".$dbEntry->getName()."] questions", 1, 2, "C", 1);
+
+		$questionType = QuizPlugin::getCuePointTypeCoreValue(QuizCuePointType::QUIZ_QUESTION);
+		$questions = CuePointPeer::retrieveByEntryId($entryId, array($questionType));
+		foreach ($questions as $question)
+		{
+			/**
+			 * @var QuestionCuePoint $question
+			 */
+			$pdf->SetFont('Times','',15);
+			$pdf->MultiCell(0, 0.25, $question->getName(), 'LR', "L");
+			foreach ($question->getOptionalAnswers() as $optionalAnswer)
+			{
+				/**
+				 * @var kOptionalAnswer $optionalAnswer
+				 */
+				$pdf->SetFont('Times','',8);
+				$pdf->MultiCell(0, 0.15, $optionalAnswer->getText(), 'LR', "L");
+			}
+		}
+
+
+
+/*
+		$lipsum1="Lorem ipsum dolor sit amet, nam aliquam dolore est, est in eget.";
+
+		$lipsum2="Nibh lectus, pede fusce ullamcorper vel porttitor.";
+
+		$lipsum3 ="Duis maecenas et curabitur, felis dolor.";
+
+		$pdf->SetFont('Times','',12);
+//MultiCell(float w, float h, string txt [, mixed border [, string align [, boolean fill]]])
+		$pdf->MultiCell(0, 0.5, $lipsum1, 'LR', "L");
+		$pdf->MultiCell(0, 0.25, $lipsum2, 1, "R");
+		$pdf->MultiCell(0, 0.15, $lipsum3, 'B', "J");
+
+		$pdf->AddPage();
+		$pdf->Write(0.5, $lipsum1.$lipsum2.$lipsum3);*/
+
+		$pdf->Output('/tmp/outQuiz.pdf','F');
+		return "this works";
+		
 	}
 
 }
