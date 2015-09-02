@@ -3,9 +3,10 @@
  * @package Core
  * @subpackage model.enum
  */ 
-interface EdgeServerStatus extends BaseEnum
+interface RemoteServerStatus extends BaseEnum
 {
 	const ACTIVE = 1;
 	const DISABLED = 2;
 	const DELETED = 3;
+	const NOT_REGISTERED = 4;
 }

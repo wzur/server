@@ -3,7 +3,7 @@
  * @package Core
  * @subpackage model.filters
  */ 
-class EdgeServerFilter extends baseObjectFilter
+class RemoteServerFilter extends baseObjectFilter
 {
 	public function init ()
 	{
@@ -12,10 +12,14 @@ class EdgeServerFilter extends baseObjectFilter
 		$this->fields = kArray::makeAssociativeDefaultValue ( array (
 			"_eq_id",
 			"_in_id",
+			"_eq_dc",
+			"_in_dc",
 			"_gte_created_at",
 			"_lte_created_at",
 			"_gte_updated_at",
 			"_lte_updated_at",
+			"_gte_heartbeat_time",
+			"_lte_heartbeat_time",
 			"_eq_partner_id",
 			"_in_partner_id",
 			"_eq_system_name",
