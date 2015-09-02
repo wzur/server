@@ -1931,17 +1931,19 @@ CREATE TABLE `storage_profile`
 )Type=InnoDB;
 
 #-----------------------------------------------------------------------------
-#-- edge_server
+#-- remote_server
 #-----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS `edge_server`;
+DROP TABLE IF EXISTS `remote_server`;
 
 
-CREATE TABLE `edge_server`
+CREATE TABLE `remote_server`
 (
 	`id` INTEGER  NOT NULL AUTO_INCREMENT,
+	`dc` INTEGER,
 	`created_at` DATETIME,
 	`updated_at` DATETIME,
+	`heartbeat_time` DATETIME,
 	`partner_id` INTEGER,
 	`name` VARCHAR(256),
 	`system_name` VARCHAR(256),
