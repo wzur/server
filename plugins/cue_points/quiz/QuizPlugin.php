@@ -513,6 +513,9 @@ class QuizPlugin extends KalturaPlugin implements IKalturaCuePoint, IKalturaServ
 		$kuserIds = array();
 		foreach ($answers as $answer)
 		{
+			$quizUserEntryId = $answer->getQuizUserEntryId();
+			if (!$this->isQuizUserEntrySubmitted($quizUserEntryId))
+				continue;
 			if (isset($kuserIds[$answer->getKuserId()]))
 			{
 				$kuserIds[$answer->getKuserId()]++;
