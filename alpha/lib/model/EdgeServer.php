@@ -13,7 +13,7 @@
  * @package Core
  * @subpackage model
  */
-class EdgeServer extends BaseEdgeServer {
+class EdgeServer extends RemoteServer {
 	
 	const CUSTOM_DATA_DELIVERY_IDS = 'delivery_profile_ids';
 	const CUSTOM_DATA_EDGE_PLAYBACK_CONFIGURATION = 'edge_playback_configuration';
@@ -28,6 +28,8 @@ class EdgeServer extends BaseEdgeServer {
 	 */
 	public function applyDefaultValues()
 	{
+		parent::applyDefaultValues();
+		
 		$this->setType(edgeServerType::NODE);
 	}
 	
@@ -41,16 +43,6 @@ class EdgeServer extends BaseEdgeServer {
 	public function getDeliveryProfileIds()
 	{
 		return $this->getFromCustomData(self::CUSTOM_DATA_DELIVERY_IDS, null, null);
-	}
-	
-	public function getPlaybackHostName()
-	{
-		$playbackHostName = $this->playback_host_name;
-		
-		if(!$playbackHostName)
-			$playbackHostName = $this->host_name;
-		
-		return $playbackHostName;
 	}
 	
 	public function getPlaybackHost()

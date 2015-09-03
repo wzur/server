@@ -15,15 +15,14 @@
  */
 class RemoteServer extends BaseRemoteServer {
 
-	/**
-	 * Initializes internal state of RemoteServer object.
-	 * @see        parent::__construct()
-	 */
-	public function __construct()
+	public function getPlaybackHostName()
 	{
-		// Make sure that parent constructor is always invoked, since that
-		// is where any default values for this object are set.
-		parent::__construct();
+		$playbackHostName = $this->playback_host_name;
+	
+		if(!$playbackHostName)
+			$playbackHostName = $this->host_name;
+	
+		return $playbackHostName;
 	}
 
 } // RemoteServer

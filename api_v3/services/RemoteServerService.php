@@ -100,31 +100,19 @@ class RemoteServerService extends KalturaBaseService
 	
 	/**	
 	 * @action list
-	 * @param KalturaEdgeServerFilter $filter
+	 * @param KalturaRemoteServerFilter $filter
 	 * @param KalturaFilterPager $pager
-	 * @return KalturaEdgeServerListResponse
+	 * @return KalturaRemoteServerListResponse
 	 */
-	public function listAction(KalturaEdgeServerFilter $filter = null, KalturaFilterPager $pager = null)
+	public function listAction(KalturaRemoteServerFilter $filter = null, KalturaFilterPager $pager = null)
 	{
-		$c = new Criteria();
-		
-		if (!$filter)
-			$filter = new KalturaEdgeServerFilter();
-		
-		$edgeSeverFilter = new EdgeServerFilter(); 
-		$filter->toObject($edgeSeverFilter);
-		$edgeSeverFilter->attachToCriteria($c);
-		$list = EdgeServerPeer::doSelect($c);
+		if(!$filter)
+			$filter = new KalturaRemoteServerFilter();
 			
-		if (!$pager)
+		if(!$pager)
 			$pager = new KalturaFilterPager();
-			
-		$pager->attachToCriteria($c);
 		
-		$response = new KalturaEdgeServerListResponse();
-		$response->totalCount = EdgeServerPeer::doCount($c);
-		$response->objects = KalturaEdgeServerArray::fromDbArray($list, $this->getResponseProfile());
-		return $response;
+		return $filter->getTypeListResponse($pager, $this->getResponseProfile(), null);
 	}
 	
 	/**

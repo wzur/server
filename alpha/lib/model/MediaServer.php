@@ -13,7 +13,7 @@
  * @package Core
  * @subpackage model
  */
-class MediaServer extends BaseMediaServer {
+class MediaServer extends EdgeServer {
 	const DEFAULT_MANIFEST_PORT = 1935;
 	const DEFAULT_WEB_SERVICES_PORT = 888;
 	const DEFAULT_APPLICATION = 'kLive';
@@ -28,6 +28,17 @@ class MediaServer extends BaseMediaServer {
 		self::WEB_SERVICE_LIVE => 'KalturaMediaServerLiveService',
 	);
 	
+	/**
+	 * Applies default values to this object.
+	 * This method should be called from the object's constructor (or equivalent initialization method).
+	 * @see __construct()
+	 */
+	public function applyDefaultValues()
+	{
+		parent::applyDefaultValues();
+		
+		$this->setType(remoteServerType::MEDIA_SERVERE);
+	}
 	
 	public function getTranscoder()
 	{

@@ -94,6 +94,7 @@ abstract class KalturaRemoteServer extends KalturaObject implements IRelatedFilt
 	 * DC where the remote server is located
 	 *
 	 * @var int
+	 * @readonly
 	 * @filter eq,in
 	 */
 	public $dc;
@@ -203,7 +204,7 @@ abstract class KalturaRemoteServer extends KalturaObject implements IRelatedFilt
 	 */
 	public function doFromObject($source_object, KalturaDetachedResponseProfile $responseProfile = null)
 	{
-		/* @var $source_object EdgeServer */
+		/* @var $source_object RemoteServer */
 		parent::doFromObject($source_object, $responseProfile);
 		
 		if($source_object->getHeartbeatTime() < (time() - 90))
