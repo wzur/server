@@ -22,6 +22,10 @@ class MediaServer extends EdgeServer {
 	
 	const WEB_SERVICE_LIVE = 'live';
 	
+	const CUSTOM_DATA_PORTT_PROTOCOL_ARRAY = 'port_protocol_array';
+	const CUSTOM_DATA_APP_PREFIX = 'app_prefix';
+	const CUSTOM_DATA_IS_INTERNAL = 'is_internal';
+	
 	private $isExternalMediaServer = false;
 	
 	static protected $webServices = array(
@@ -37,7 +41,7 @@ class MediaServer extends EdgeServer {
 	{
 		parent::applyDefaultValues();
 		
-		$this->setType(remoteServerType::MEDIA_SERVERE);
+		$this->setType(remoteServerType::MEDIA_SERVER);
 	}
 	
 	public function getTranscoder()
@@ -92,7 +96,7 @@ class MediaServer extends EdgeServer {
 			$portField .= "-$protocol";
 		
 		if(kConf::hasMap('media_servers'))
-		{
+		{			
 			$mediaServers = kConf::getMap('media_servers');
 			if ($partnerMediaServerConfigurations)
 				$mediaServers = array_merge($mediaServers, $partnerMediaServerConfigurations);
@@ -196,8 +200,47 @@ class MediaServer extends EdgeServer {
 		return new $serviceClass($url);
 	}
 	
-	public function setIsExternalMediaServer($v)
+	/* (non-PHPdoc)
+	 * @see lib/model/om/Baseentry#preInsert()
+	 */
+	public function preInsert(PropelPDO $con = null)
 	{
-		$this->isExternalMediaServer = $v;
+		if($this->getPartnerId() !== Partner::MEDIA_SERVER_PARTNER_ID)
+			$this->setIsExternalMediaServer(true);
+		else 
+			$this->setDc(kDataCenterMgr::getCurrentDcId());
+		
+		return parent::preInsert($con);
 	}
+	
+	public function setIsExternalMediaServer($isInternal)
+	{
+		$this->putInCustomData(self::CUSTOM_DATA_IS_INTERNAL, $isInternal);
+	}
+	
+	public function getIsExternalMediaServer()
+	{
+		$this->getFromCustomData(self::CUSTOM_DATA_IS_INTERNAL, null, false);
+	}
+	
+	public function setAppPrefix($appPrefix)
+	{
+		$this->putInCustomData(self::CUSTOM_DATA_APP_PREFIX, $appPrefix);
+	}
+	
+	public function getAppPrefix()
+	{
+		$this->getFromCustomData(self::CUSTOM_DATA_APP_PREFIX, null, "");
+	}
+	
+	public function setProtocolPort($protocolPortArray)
+	{
+		$this->putInCustomData(self::CUSTOM_DATA_PORTT_PROTOCOL_ARRAY, $protocolPortArray);
+	}
+	
+	public function getProtocolPort()
+	{
+		$this->getFromCustomData(self::CUSTOM_DATA_PORTT_PROTOCOL_ARRAY, null, null);
+	}
+	
 } // MediaServer

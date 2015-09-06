@@ -43,4 +43,37 @@ class KalturaMediaServer extends KalturaEdgeServer
 			
 		return parent::toInsertableObject($object_to_fill, $props_to_skip);
 	}
+	
+	/* (non-PHPdoc)
+	 * @see KalturaObject::toObject()
+	 */
+	public function toObject($dbObject = null, $skip = array())
+	{
+		if(!$dbObject)
+			$dbObject = new MediaServer();
+	
+		$dbObject = parent::toObject($dbObject, $skip);
+	
+		if (!is_null($this->protocolPort))
+		{
+			$protocolPort = array();
+			foreach($this->protocolPort as $keyValue)
+				$protocolPort[$keyValue->key] = $keyValue->value;
+			$dbObject->setProtocolPort($protocolPort);
+		}
+	
+		return $dbObject;
+	}
+	
+	/* (non-PHPdoc)
+	 * @see KalturaObject::fromObject()
+	 */
+	public function doFromObject($source_object, KalturaDetachedResponseProfile $responseProfile = null)
+	{
+		/* @var $source_object MediaServer */
+		parent::doFromObject($source_object, $responseProfile);
+	
+		if($this->shouldGet('protocolPort', $responseProfile) && !is_null($dbObject->getProtocolPort()))
+			$this->protocolPort = KalturaKeyValueArray::fromKeyValueArray($source_object->getProtocolPort());
+	}
 }

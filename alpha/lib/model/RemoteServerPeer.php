@@ -52,5 +52,29 @@ class RemoteServerPeer extends BaseRemoteServerPeer {
 	
 		return $objs;
 	}
+	
+	/* (non-PHPdoc)
+	 * @see BaseRemoteServerPeer::getOMClass()
+	 */
+	public static function getOMClass($row, $colnum)
+	{
+		$remoteServerType = null;
+		if($row)
+		{
+			$typeField = self::translateFieldName(self::TYPE, BasePeer::TYPE_COLNAME, BasePeer::TYPE_NUM);
+			$remoteServerType = $row[$typeField];
+			if(isset(self::$class_types_cache[$remoteServerType]))
+				return self::$class_types_cache[$remoteServerType];
+	
+			$extendedCls = KalturaPluginManager::getObjectClass(self::OM_CLASS, $remoteServerType);
+			if($extendedCls)
+			{
+				self::$class_types_cache[$remoteServerType] = $extendedCls;
+				return $extendedCls;
+			}
+		}
+			
+		throw new Exception("Can't instantiate un-typed [$remoteServerType] remoteServer [" . print_r($row, true) . "]");
+	}
 
 } // RemoteServerPeer

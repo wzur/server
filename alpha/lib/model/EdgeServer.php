@@ -30,7 +30,7 @@ class EdgeServer extends RemoteServer {
 	{
 		parent::applyDefaultValues();
 		
-		$this->setType(edgeServerType::NODE);
+		$this->setType(remoteServerType::NODE);
 	}
 	
 	/* Delivery Settings */

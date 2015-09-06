@@ -78,6 +78,7 @@ abstract class KalturaRemoteServer extends KalturaObject implements IRelatedFilt
 	
 	/**
 	 * @var KalturaRemoteServerType
+	 * @readonly
 	 * @filter eq,in
 	 */
 	public $type;
@@ -162,40 +163,40 @@ abstract class KalturaRemoteServer extends KalturaObject implements IRelatedFilt
 		$this->validatePropertyMinLength("name", 1, !$isInsert);
 	}
 	
-	public function validateDuplications($edgeId = null)
+	public function validateDuplications($remoteServerId = null)
 	{
 		if($this->hostName)		
-			$this->validateHostNameDuplication($edgeId);
+			$this->validateHostNameDuplication($remoteServerId);
 		
 		if($this->systemName)
-			$this->validateSystemNameDuplication($edgeId);
+			$this->validateSystemNameDuplication($remoteServerId);
 	}
 	
-	public function validateHostNameDuplication($edgeId = null)
+	public function validateHostNameDuplication($remoteServerId = null)
 	{
-		$c = KalturaCriteria::create(EdgeServerPeer::OM_CLASS);
+		$c = KalturaCriteria::create(RemoteServerPeer::OM_CLASS);
 		
-		if($edgeId)
-			$c->add(EdgeServerPeer::ID, $edgeId, Criteria::NOT_EQUAL);
+		if($remoteServerId)
+			$c->add(RemoteServerPeer::ID, $remoteServerId, Criteria::NOT_EQUAL);
 		
-		$c->add(EdgeServerPeer::HOST_NAME, $this->hostName);
-		$c->add(EdgeServerPeer::STATUS, array(EdgeServerStatus::ACTIVE, EdgeServerStatus::DISABLED), Criteria::IN);
+		$c->add(RemoteServerPeer::HOST_NAME, $this->hostName);
+		$c->add(RemoteServerPeer::STATUS, array(RemoteServerStatus::ACTIVE, RemoteServerStatus::DISABLED), Criteria::IN);
 		
-		if(EdgeServerPeer::doCount($c))
+		if(RemoteServerPeer::doCount($c))
 			throw new KalturaAPIException(KalturaErrors::HOST_NAME_ALREADY_EXISTS, $this->hostName);
 	}
 	
-	public function validateSystemNameDuplication($edgeId = null)
+	public function validateSystemNameDuplication($remoteServerId = null)
 	{
-		$c = KalturaCriteria::create(EdgeServerPeer::OM_CLASS);
+		$c = KalturaCriteria::create(RemoteServerPeer::OM_CLASS);
 	
-		if($edgeId)
-			$c->add(EdgeServerPeer::ID, $edgeId, Criteria::NOT_EQUAL);
+		if($remoteServerId)
+			$c->add(RemoteServerPeer::ID, $remoteServerId, Criteria::NOT_EQUAL);
 	
-		$c->add(EdgeServerPeer::SYSTEM_NAME, $this->systemName);
-		$c->add(EdgeServerPeer::STATUS, array(EdgeServerStatus::ACTIVE, EdgeServerStatus::DISABLED), Criteria::IN);
+		$c->add(RemoteServerPeer::SYSTEM_NAME, $this->systemName);
+		$c->add(RemoteServerPeer::STATUS, array(RemoteServerStatus::ACTIVE, RemoteServerStatus::DISABLED), Criteria::IN);
 	
-		if(EdgeServerPeer::doCount($c))
+		if(RemoteServerPeer::doCount($c))
 			throw new KalturaAPIException(KalturaErrors::SYSTEM_NAME_ALREADY_EXISTS, $this->systemName);
 	}
 	
@@ -204,11 +205,10 @@ abstract class KalturaRemoteServer extends KalturaObject implements IRelatedFilt
 	 */
 	public function doFromObject($source_object, KalturaDetachedResponseProfile $responseProfile = null)
 	{
-		/* @var $source_object RemoteServer */
 		parent::doFromObject($source_object, $responseProfile);
 		
 		if($source_object->getHeartbeatTime() < (time() - 90))
-			$this->status = EdgeServerStatus::NOT_REGISTERED;
+			$this->status = RemoteServerStatus::NOT_REGISTERED;
 	}
 	
 	/* (non-PHPdoc)
