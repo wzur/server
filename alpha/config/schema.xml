@@ -1731,7 +1731,7 @@
 		<column primaryKey="false" required="false" autoIncrement="false" lazyLoad="false" name="system_name" type="varchar" size="256" />
 		<column primaryKey="false" required="false" autoIncrement="false" lazyLoad="false" name="description" type="varchar" size="256" />
 		<column primaryKey="false" required="false" autoIncrement="false" lazyLoad="false" name="status" type="integer" />
-		<column primaryKey="false" required="true" autoIncrement="false" lazyLoad="false" name="type" type="integer" default="0" />
+		<column primaryKey="false" required="true" autoIncrement="false" lazyLoad="false" name="type" type="integer" inheritance="single" default="0" />
 		<column primaryKey="false" required="false" autoIncrement="false" lazyLoad="false" name="tags" type="longvarchar" />
 		<column primaryKey="false" required="true" autoIncrement="false" lazyLoad="false" name="host_name" type="varchar" size="256" />
 		<column primaryKey="false" required="false" autoIncrement="false" lazyLoad="false" name="playback_host_name" type="varchar" size="256" />

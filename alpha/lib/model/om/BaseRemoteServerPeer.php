@@ -746,8 +746,6 @@ abstract class BaseRemoteServerPeer {
 	{
 		$results = array();
 	
-		// set the class once to avoid overhead in the loop
-		$cls = RemoteServerPeer::getOMClass(false);
 		// populate the object(s)
 		while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
 			$key = RemoteServerPeer::getPrimaryKeyHashFromRow($row, 0);
@@ -757,6 +755,9 @@ abstract class BaseRemoteServerPeer {
 				// $obj->hydrate($row, 0, true); // rehydrate
 				$results[] = $obj;
 			} else {
+				// class must be set each time from the record row
+				$cls = RemoteServerPeer::getOMClass($row, 0);
+				$cls = substr('.'.$cls, strrpos('.'.$cls, '.') + 1);
 				$obj = new $cls();
 				$obj->hydrate($row);
 				$results[] = $obj;
@@ -790,19 +791,25 @@ abstract class BaseRemoteServerPeer {
 	}
 
 	/**
-	 * The class that the Peer will make instances of.
+	 * The returned Class will contain objects of the default type or
+	 * objects that inherit from the default.
 	 *
-	 * If $withPrefix is true, the returned path
-	 * uses a dot-path notation which is tranalted into a path
-	 * relative to a location on the PHP include_path.
-	 * (e.g. path.to.MyClass -> 'path/to/MyClass.php')
-	 *
-	 * @param      boolean  Whether or not to return the path wit hthe class name 
-	 * @return     string path.to.ClassName
+	 * @param      array $row PropelPDO result row.
+	 * @param      int $colnum Column to examine for OM class information (first is 0).
+	 * @throws     PropelException Any exceptions caught during processing will be
+	 *		 rethrown wrapped into a PropelException.
 	 */
-	public static function getOMClass($withPrefix = true)
+	public static function getOMClass($row, $colnum)
 	{
-		return $withPrefix ? RemoteServerPeer::CLASS_DEFAULT : RemoteServerPeer::OM_CLASS;
+		try {
+
+			$omClass = $row[$colnum + 10];
+			$omClass = substr('.'.$omClass, strrpos('.'.$omClass, '.') + 1);
+
+		} catch (Exception $e) {
+			throw new PropelException('Unable to get OM class.', $e);
+		}
+		return $omClass;
 	}
 
 	/**
