@@ -73,7 +73,7 @@ class KalturaMediaServer extends KalturaEdgeServer
 		/* @var $source_object MediaServer */
 		parent::doFromObject($source_object, $responseProfile);
 	
-		if($this->shouldGet('protocolPort', $responseProfile) && !is_null($dbObject->getProtocolPort()))
+		if($this->shouldGet('protocolPort', $responseProfile) && !is_null($source_object->getProtocolPort()))
 			$this->protocolPort = KalturaKeyValueArray::fromKeyValueArray($source_object->getProtocolPort());
 	}
 }

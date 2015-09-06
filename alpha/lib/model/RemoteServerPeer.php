@@ -15,6 +15,15 @@
  */
 class RemoteServerPeer extends BaseRemoteServerPeer {
 	
+	const EDGE_SERVER_OM_CLASS = 'EdgeServer';
+	const MEDIA_SERVER_OM_CLASS = 'MediaServer';
+	
+	// cache classes by their type
+	protected static $class_types_cache = array(
+			remoteServerType::NODE => self::EDGE_SERVER_OM_CLASS,
+			remoteServerType::MEDIA_SERVER => self::MEDIA_SERVER_OM_CLASS,
+	);
+
 	public static function setDefaultCriteriaFilter ()
 	{
 		if ( self::$s_criteria_filter == null )
@@ -66,7 +75,7 @@ class RemoteServerPeer extends BaseRemoteServerPeer {
 			if(isset(self::$class_types_cache[$remoteServerType]))
 				return self::$class_types_cache[$remoteServerType];
 	
-			$extendedCls = KalturaPluginManager::getObjectClass(self::OM_CLASS, $remoteServerType);
+			$extendedCls = KalturaPluginManager::getObjectClass(parent::OM_CLASS, $remoteServerType);
 			if($extendedCls)
 			{
 				self::$class_types_cache[$remoteServerType] = $extendedCls;

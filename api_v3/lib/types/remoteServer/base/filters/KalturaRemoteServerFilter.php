@@ -17,7 +17,7 @@ class KalturaRemoteServerFilter extends KalturaRemoteServerBaseFilter
 		{
 			list($list, $totalCount) = $this->doGetListResponse($pager, $type);
 			$response = new KalturaRemoteServerListResponse();
-			$response->objects = KalturaCuePointArray::fromDbArray($list, $responseProfile);
+			$response->objects = KalturaRemoteServerArray::fromDbArray($list, $responseProfile);
 			$response->totalCount = $totalCount;
 		
 			return $response;
