@@ -23,7 +23,6 @@ class KalturaFacebookDistributionJobProviderData extends KalturaConfigurableDist
 	public function __construct(KalturaDistributionJobData $distributionJobData = null)
 	{
 		parent::__construct($distributionJobData);
-	    
 		if( (!$distributionJobData) ||
 			!($distributionJobData->distributionProfile instanceof KalturaFacebookDistributionProfile) ){
 			KalturaLog::info("Distribution data given did not exist or was not facebook related, given: ".print_r($distributionJobData, true));
@@ -41,7 +40,7 @@ class KalturaFacebookDistributionJobProviderData extends KalturaConfigurableDist
 		$thumbAssets = assetPeer::retrieveByIds(explode(',', $distributionJobData->entryDistribution->thumbAssetIds));
 		if(count($thumbAssets))
 		{
-			$syncKey = reset($thumbAssets)->getSyncKey(thumbAsset::FILE_SYNC_FLAVOR_ASSET_SUB_TYPE_ASSET);
+			$syncKey = reset($thumbAssets)->getSyncKey(thumbAsset::FILE_SYNC_ASSET_SUB_TYPE_ASSET);
 			if(kFileSyncUtils::fileSync_exists($syncKey))
 				$this->thumbAssetFilePath = kFileSyncUtils::getLocalFilePathForKey($syncKey, false);
 		}
@@ -49,7 +48,7 @@ class KalturaFacebookDistributionJobProviderData extends KalturaConfigurableDist
 		$this->addCaptionsData($distributionJobData);
 
 	}
-	
+
 	private static $map_between_objects = array
 	(
 		"videoAssetFilePath",
@@ -83,7 +82,7 @@ class KalturaFacebookDistributionJobProviderData extends KalturaConfigurableDist
 			}
 			if ($asset->getStatus() == asset::ASSET_STATUS_READY) 
 			{
-				$syncKey = $asset->getSyncKey ( asset::FILE_SYNC_FLAVOR_ASSET_SUB_TYPE_ASSET );
+				$syncKey = $asset->getSyncKey ( asset::FILE_SYNC_ASSET_SUB_TYPE_ASSET );
 				if (kFileSyncUtils::fileSync_exists ( $syncKey )) 
 				{
 					$captionInfo = $this->getCaptionInfo($asset, $distributionJobData, KalturaDistributionAction::SUBMIT);
@@ -93,25 +92,14 @@ class KalturaFacebookDistributionJobProviderData extends KalturaConfigurableDist
 						$this->captionsInfo [] = $captionInfo;
 					}					 
 				}						
-			}
-			elseif($asset->getStatus()== asset::ASSET_STATUS_DELETED) 
-			{
-				$captionInfo = $this->getCaptionInfo($asset, $distributionJobData, KalturaDistributionAction::DELETE);
-				if($captionInfo)
-				{
-						$this->captionsInfo [] = $captionInfo;
-				}	
-			}
-			else
-			{
-				KalturaLog::err("Asset [$assetId] has status [".$asset->getStatus()."]. not added to provider data");
-			}
+			} else
+				KalturaLog::info("Asset [$assetId] has status [".$asset->getStatus()."]. not added to provider data");
 		}
 	}
 	
 	private function getCaptionInfo($asset, KalturaDistributionJobData $distributionJobData, $action)
 	{
-		$captionInfo = new KalturaCaptionDistributionInfo ();		
+		$captionInfo = new KalturaCaptionDistributionInfo ();
 		$captionInfo->assetId = $asset->getId();
 		$captionInfo->version = $asset->getVersion();
 		$captionInfo->label = $asset->getLabel();
@@ -131,16 +119,12 @@ class KalturaFacebookDistributionJobProviderData extends KalturaConfigurableDist
 				break;
 			}
 		}
-		if ($distributed && $action == KalturaDistributionAction::DELETE || 
-			!$distributed && $action == KalturaDistributionAction::SUBMIT)
-		{
+		if (($distributed && $action == KalturaDistributionAction::DELETE) ||
+			$action == KalturaDistributionAction::SUBMIT) {
 			$captionInfo->action = $action;
-		}
-		else 
-		{
+		} else {
 			return null;
 		}
-			
 		return $captionInfo;
 	}
 	
@@ -154,14 +138,14 @@ class KalturaFacebookDistributionJobProviderData extends KalturaConfigurableDist
 		{
 			$flavorAssets = assetPeer::retrieveByIds(explode(',', $distributionJobData->entryDistribution->flavorAssetIds));
 		}
-		else 
+		else
 		{
 			$flavorAssets = assetPeer::retrieveReadyFlavorsByEntryId($distributionJobData->entryDistribution->entryId);
 		}
-		
+
 		foreach ($flavorAssets as $flavorAsset) 
 		{
-			$syncKey = $flavorAsset->getSyncKey(flavorAsset::FILE_SYNC_FLAVOR_ASSET_SUB_TYPE_ASSET);
+			$syncKey = $flavorAsset->getSyncKey(flavorAsset::FILE_SYNC_ASSET_SUB_TYPE_ASSET);
 			if(kFileSyncUtils::fileSync_exists($syncKey))
 			{
 				$videoAssetFilePath = kFileSyncUtils::getLocalFilePathForKey($syncKey, false);
